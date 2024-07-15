@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "624794007159",
+    "project_id": "orderin-d6bad",
+    "storage_bucket": "orderin-d6bad.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:624794007159:android:43f7226c31f4567f8df872",
+        "android_client_info": {
+          "package_name": "com.spherical.orderinapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDozWcQeH-V_QAPmZGgwf7VZS5sdx9cGug"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:624794007159:android:accbf934658f4ffb8df872",
+        "android_client_info": {
+          "package_name": "com.spherical.orderinapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDozWcQeH-V_QAPmZGgwf7VZS5sdx9cGug"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
