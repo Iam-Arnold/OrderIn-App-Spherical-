@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -5,16 +6,19 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class GoogleSignInService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final GoogleSignIn googleSignIn = GoogleSignIn(
-    clientId: '474792991550-3c4qacc9fc1747746248leben37gj7t3.apps.googleusercontent.com',
+    //clientId: '474792991550-3c4qacc9fc1747746248leben37gj7t3.apps.googleusercontent.com',
   );
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  // Sign in with Google
-  Future<User?> signInWithGoogle() async {
+  ValueNotifier<bool> isSignedIn = ValueNotifier<bool>(false);
+
+  // Sign in or Sign up with Google
+  Future<void> signInWithGoogle() async {
     try {
       final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
       if (googleUser == null) {
-        return null; // The user canceled the sign-in
+        isSignedIn.value = false; // The user canceled the sign-in
+        return;
       }
 
       final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
@@ -35,18 +39,20 @@ class GoogleSignInService {
           'email': user.email,
           'profilePicture': user.photoURL,
         });
+        isSignedIn.value = true;
+      } else {
+        isSignedIn.value = false;
       }
-
-      return user;
     } catch (error) {
       print(error.toString());
-      return null;
+      isSignedIn.value = false;
     }
   }
 
   // Sign out Google
-  Future signOutGoogle() async {
+  Future<void> signOutGoogle() async {
     await googleSignIn.signOut();
     print("User Signed Out");
+    isSignedIn.value = false;
   }
 }

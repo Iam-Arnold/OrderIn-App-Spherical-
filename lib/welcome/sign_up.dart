@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import '../utils/colors.dart';
 import '../components/primary_button.dart';
-import '../authentication/auth_service.dart';
 import '../authentication/google_sign_in.dart';
+import 'package:flutter_signin_button/flutter_signin_button.dart';
 
 class SignUpScreen extends StatefulWidget {
   @override
@@ -10,16 +10,41 @@ class SignUpScreen extends StatefulWidget {
 }
 
 class _SignUpScreenState extends State<SignUpScreen> {
-  final AuthService _auth = AuthService();
   final GoogleSignInService _googleSignInService = GoogleSignInService();
-  final _formKey = GlobalKey<FormState>();
 
-  // Text field state
-  String email = '';
-  String password = '';
-  String firstName = '';
-  String lastName = '';
-  String error = '';
+  @override
+  void initState() {
+    super.initState();
+    _googleSignInService.isSignedIn.addListener(() {
+      if (_googleSignInService.isSignedIn.value) {
+        Navigator.pushReplacementNamed(context, '/main');
+      } else {
+        showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: Text('Sign Up Error'),
+              content: Text('There was an error signing up with Google.'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _googleSignInService.isSignedIn.removeListener(() {});
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -54,151 +79,54 @@ class _SignUpScreenState extends State<SignUpScreen> {
           Center(
             child: Padding(
               padding: const EdgeInsets.all(16.0),
-              child: SingleChildScrollView(
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      SizedBox(height: 16.0),
-                      Text(
-                        'Create an Account',
-                        style: TextStyle(
-                          fontSize: 18.0,
-                          color: AppColors.grey,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                      SizedBox(height: 32.0),
-                      TextFormField(
-                        decoration: InputDecoration(
-                          hintText: 'First Name',
-                          labelText: 'First Name',
-                          floatingLabelBehavior: FloatingLabelBehavior.auto,
-                          hintStyle: TextStyle(color: Colors.grey),
-                          fillColor: Colors.white,
-                          filled: true,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8.0),
-                          ),
-                        ),
-                        validator: (val) => val!.isEmpty ? 'Enter your first name' : null,
-                        onChanged: (val) {
-                          setState(() => firstName = val);
-                        },
-                      ),
-                      SizedBox(height: 16.0),
-                      TextFormField(
-                        decoration: InputDecoration(
-                          hintText: 'Last Name',
-                          labelText: 'Last Name',
-                          floatingLabelBehavior: FloatingLabelBehavior.auto,
-                          hintStyle: TextStyle(color: Colors.grey),
-                          fillColor: Colors.white,
-                          filled: true,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8.0),
-                          ),
-                        ),
-                        validator: (val) => val!.isEmpty ? 'Enter your last name' : null,
-                        onChanged: (val) {
-                          setState(() => lastName = val);
-                        },
-                      ),
-                      SizedBox(height: 16.0),
-                      TextFormField(
-                        decoration: InputDecoration(
-                          hintText: 'Email',
-                          labelText: 'Email',
-                          floatingLabelBehavior: FloatingLabelBehavior.auto,
-                          hintStyle: TextStyle(color: Colors.grey),
-                          fillColor: Colors.white,
-                          filled: true,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8.0),
-                          ),
-                        ),
-                        validator: (val) => val!.isEmpty ? 'Enter an email' : null,
-                        onChanged: (val) {
-                          setState(() => email = val);
-                        },
-                      ),
-                      SizedBox(height: 16.0),
-                      TextFormField(
-                        decoration: InputDecoration(
-                          hintText: 'Password',
-                          labelText: 'Password',
-                          floatingLabelBehavior: FloatingLabelBehavior.auto,
-                          hintStyle: TextStyle(color: Colors.grey),
-                          fillColor: Colors.white,
-                          filled: true,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8.0),
-                          ),
-                        ),
-                        obscureText: true,
-                        validator: (val) => val!.length < 6 ? 'Enter a password 6+ chars long' : null,
-                        onChanged: (val) {
-                          setState(() => password = val);
-                        },
-                      ),
-                      SizedBox(height: 32.0),
-                      PrimaryButton(
-                        text: 'Sign Up',
-                        onPressed: () async {
-                          if (_formKey.currentState!.validate()) {
-                            dynamic result = await _auth.registerWithEmailPassword(
-                              email,
-                              password,
-                              firstName,
-                              lastName,
-                            );
-                            if (result == null) {
-                              setState(() => error = 'Please supply a valid email');
-                            } else {
-                              Navigator.pushReplacementNamed(context, '/main');
-                            }
-                          }
-                        },
-                      ),
-                      SizedBox(height: 16.0),
-                      ElevatedButton.icon(
-                        onPressed: () async {
-                          dynamic result = await _googleSignInService.signInWithGoogle();
-                          if (result != null) {
-                            Navigator.pushReplacementNamed(context, '/main');
-                          } else {
-                            // Handle error
-                          }
-                        },
-                        icon: Icon(Icons.email, color: Colors.white),
-                        label: Text('Sign Up with Google'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xFFDB4437), // Google color
-                          padding: EdgeInsets.symmetric(horizontal: 32.0, vertical: 12.0),
-                          textStyle: TextStyle(fontSize: 18.0),
-                        ),
-                      ),
-                      SizedBox(height: 16.0),
-                      Text(
-                        error,
-                        style: TextStyle(color: Colors.red, fontSize: 14.0),
-                        textAlign: TextAlign.center,
-                      ),
-                      SizedBox(height: 16.0),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.pushReplacementNamed(context, '/signIn'); // Navigate to login page
-                        },
-                        child: Text(
-                          'Already have an account? Sign in',
-                          style: TextStyle(color: AppColors.grey),
-                        ),
-                      ),
-                    ],
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  SizedBox(height: 16.0),
+                  SizedBox(height: 32.0),
+                  Text(
+                    'Create a New Account',
+                    style: TextStyle(
+                      fontSize: 18.0,
+                      color: AppColors.grey,
+                    ),
                   ),
-                ),
+                  SizedBox(height: 16.0),
+                  Container(
+                    width: double.infinity,
+                    height: 60.0,
+                    child: SignInButton(
+                      Buttons.Google,
+                      onPressed: () {
+                        _googleSignInService.signInWithGoogle();
+                      },
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30.0),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 16.0),
+                  Text('or', style: TextStyle(color: AppColors.grey)),
+                  SizedBox(height: 16.0),
+                  PrimaryButton(
+                    text: 'Continue as Guest',
+                    onPressed: () {
+                      // Handle guest sign-in
+                      Navigator.pushReplacementNamed(context, '/main');
+                    },
+                  ),
+                  SizedBox(height: 16.0),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pushReplacementNamed(context, '/signin');
+                    },
+                    child: Text(
+                      'Already have an account? Sign in',
+                      style: TextStyle(color: AppColors.grey),
+                    ),
+                  ),
+                ],
               ),
             ),
           ),

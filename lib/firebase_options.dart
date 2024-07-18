@@ -64,7 +64,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '624794007159',
     projectId: 'orderin-d6bad',
     storageBucket: 'orderin-d6bad.appspot.com',
-    iosBundleId: 'com.example.orderinapp',
+    iosBundleId: 'com.spherical.orderinapp',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
@@ -73,7 +73,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '624794007159',
     projectId: 'orderin-d6bad',
     storageBucket: 'orderin-d6bad.appspot.com',
-    iosBundleId: 'com.example.orderinapp',
+    iosBundleId: 'com.spherical.orderinapp',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../utils/colors.dart';
 
 class LoadingScreen extends StatefulWidget {
@@ -11,9 +12,27 @@ class _LoadingScreenState extends State<LoadingScreen> {
   @override
   void initState() {
     super.initState();
-    Timer(Duration(seconds: 3), () {
-      Navigator.pushReplacementNamed(context, '/welcome');
-    });
+    _checkLoginStatus();
+  }
+
+  Future<void> _checkLoginStatus() async {
+    User? user = FirebaseAuth.instance.currentUser;
+
+    if (user != null) {
+      // User is signed in, fetch user details
+      String userName = user.displayName ?? 'Guest';
+      String userProfilePicture = user.photoURL ?? '';
+      Navigator.pushReplacementNamed(
+        context,
+        '/main',
+        arguments: {'userName': userName, 'userProfilePicture': userProfilePicture},
+      );
+    } else {
+      // User is not signed in, navigate to welcome screen after the timer
+      Timer(Duration(seconds: 3), () {
+        Navigator.pushReplacementNamed(context, '/welcome');
+      });
+    }
   }
 
   @override
@@ -23,18 +42,8 @@ class _LoadingScreenState extends State<LoadingScreen> {
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: [           
+          children: [
             Image.asset('assets/dartorderinLogo.png', height: 100.0),
-            // Image.asset('assets/orderinLogo.png', height: 100.0),  // Adjust the path as needed
-            SizedBox(height: 20.0),
-            // Text(
-            //   'OrderIn',
-            //   style: TextStyle(
-            //     fontSize: 24.0,
-            //     fontWeight: FontWeight.bold,
-            //     color: AppColors.ultramarineBlue,
-            //   ),
-            // ),
             SizedBox(height: 20.0),
             CircularProgressIndicator(
               valueColor: AlwaysStoppedAnimation<Color>(AppColors.ultramarineBlue),

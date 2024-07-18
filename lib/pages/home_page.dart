@@ -12,6 +12,11 @@ import '../components/spherical_loader.dart'; // Import the spherical loader
 import '../components/retailer_card.dart'; // Import the RetailerCard component
 
 class HomePage extends StatefulWidget {
+  final String userName;
+  final String userProfilePicture;
+
+  HomePage({required this.userName, required this.userProfilePicture});
+
   @override
   _HomePageState createState() => _HomePageState();
 }
@@ -48,7 +53,7 @@ class _HomePageState extends State<HomePage> {
               );
             },
           ),
-          _buildUserAvatar(), // Add user avatar here
+          _buildUserAvatar(widget.userName, widget.userProfilePicture), // Add user avatar here
         ],
         leading: Icon(Icons.shopping_basket),
       ),
@@ -84,15 +89,10 @@ class _HomePageState extends State<HomePage> {
           }
         },
       ),
-      //bottomNavigationBar: BottomNavigation(),
     );
   }
 
-  Widget _buildUserAvatar() {
-    // Replace with actual user data
-    String firstName = 'John';
-    String profileImageUrl = 'https://via.placeholder.com/150'; // Replace with actual profile image URL
-
+  Widget _buildUserAvatar(String userName, String userProfilePicture) {
     return Padding(
       padding: const EdgeInsets.only(right: 16.0),
       child: GestureDetector(
@@ -100,13 +100,19 @@ class _HomePageState extends State<HomePage> {
           // Handle profile tap
         },
         child: CircleAvatar(
-          backgroundImage: NetworkImage(profileImageUrl),
-          child: profileImageUrl.isEmpty ? Text(firstName[0], style: TextStyle(color: Colors.white, fontSize: 18)) : null,
+          backgroundImage: userProfilePicture.isNotEmpty
+              ? NetworkImage(userProfilePicture)
+              : null,
+          child: userProfilePicture.isEmpty
+              ? Text(
+                  userName[0],
+                  style: TextStyle(color: Colors.white, fontSize: 18),
+                )
+              : null,
         ),
       ),
     );
   }
-
   Widget _buildHeaderCard(BuildContext context) {
     return Card(
       shape: RoundedRectangleBorder(
