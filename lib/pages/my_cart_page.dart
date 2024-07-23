@@ -33,7 +33,7 @@ class MyCartPage extends StatelessWidget {
       child: Scaffold(
         appBar: AppBar(
           title: Text('My Cart'),
-          backgroundColor: AppColors.ultramarineBlue,
+          //backgroundColor: AppColors.ultramarineBlue,
         ),
         body: Container(
           padding: EdgeInsets.all(16.0),

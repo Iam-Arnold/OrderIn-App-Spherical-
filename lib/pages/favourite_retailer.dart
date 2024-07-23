@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:orderinapp/provider/theme_provider.dart';
+import 'package:provider/provider.dart';
 import '../utils/colors.dart';
 import '../models/retailer.dart';
 import '../components/top_navbar.dart';
@@ -57,85 +59,90 @@ class _FavoriteRetailersPageState extends State<FavoriteRetailersPage> {
           },
         ),
       ),
-      //bottomNavigationBar: BottomNavigation(), 
+      //bottomNavigationBar: BottomNavigation(),
     );
   }
 
   Widget _buildRetailerCard(BuildContext context, Retailer retailer) {
-    return Card(
-      margin: EdgeInsets.only(bottom: 16.0),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16.0),
-      ),
-      elevation: 5,
-      child: InkWell(
-        onTap: () {
-          // Navigate to retailer details page
-        },
-        child: Column(
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(16.0),
-                topRight: Radius.circular(16.0),
-              ),
-              child: Image.asset(
-                retailer.placeholderImageAsset ?? 'assets/images/store_placeholder.png',
-                height: 150.0,
-                width: double.infinity,
-                fit: BoxFit.cover,
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    retailer.storeName,
-                    style: TextStyle(
-                      fontSize: 18.0,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.darkBlue,
-                    ),
+    return Consumer<ThemeProvider>(
+      builder: (context, themeProvider, child) {
+        return Card(
+          color: themeProvider.switchThemeIcon() ? AppColors.white : AppColors.darkBlue,
+          margin: EdgeInsets.only(bottom: 16.0),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16.0),
+          ),
+          elevation: 2,
+          child: InkWell(
+            onTap: () {
+              // Navigate to retailer details page
+            },
+            child: Column(
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(16.0),
+                    topRight: Radius.circular(16.0),
                   ),
-                  SizedBox(height: 8.0),
-                  Text(
-                    retailer.retailerType,
-                    style: TextStyle(
-                      fontSize: 14.0,
-                      color: AppColors.grey,
-                    ),
+                  child: Image.asset(
+                    retailer.placeholderImageAsset ?? 'assets/images/store_placeholder.png',
+                    height: 150.0,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
                   ),
-                  SizedBox(height: 8.0),
-                  Row(
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Icon(Icons.timer, size: 14.0, color: AppColors.grey),
-                      SizedBox(width: 4.0),
                       Text(
-                        retailer.time,
+                        retailer.storeName,
+                        style: TextStyle(
+                          fontSize: 18.0,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.lightBlue,
+                        ),
+                      ),
+                      SizedBox(height: 8.0),
+                      Text(
+                        retailer.retailerType,
                         style: TextStyle(
                           fontSize: 14.0,
                           color: AppColors.grey,
                         ),
                       ),
-                      Spacer(),
-                      Icon(Icons.attach_money, size: 14.0, color: AppColors.grey),
-                      Text(
-                        retailer.price,
-                        style: TextStyle(
-                          fontSize: 14.0,
-                          color: AppColors.grey,
-                        ),
+                      SizedBox(height: 8.0),
+                      Row(
+                        children: [
+                          Icon(Icons.timer, size: 14.0, color: AppColors.grey),
+                          SizedBox(width: 4.0),
+                          Text(
+                            retailer.time,
+                            style: TextStyle(
+                              fontSize: 14.0,
+                              color: AppColors.grey,
+                            ),
+                          ),
+                          Spacer(),
+                          Icon(Icons.attach_money, size: 14.0, color: AppColors.grey),
+                          Text(
+                            retailer.price,
+                            style: TextStyle(
+                              fontSize: 14.0,
+                              color: AppColors.grey,
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }

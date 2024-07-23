@@ -1,8 +1,16 @@
 import 'package:flutter/material.dart';
 import '../utils/colors.dart';
 import '../components/primary_button.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
-class WelcomeScreen extends StatelessWidget {
+class WelcomeScreen extends StatefulWidget {
+  @override
+  _WelcomeScreenState createState() => _WelcomeScreenState();
+}
+
+class _WelcomeScreenState extends State<WelcomeScreen> {
+  User? user = FirebaseAuth.instance.currentUser;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -14,17 +22,10 @@ class WelcomeScreen extends StatelessWidget {
           children: [
             Image.asset('assets/orderinLogo.png', height: 100.0),
             SizedBox(height: 20.0),
-            // Text(
-            //   'OrderIn',
-            //   style: TextStyle(
-            //     fontSize: 24.0,
-            //     fontWeight: FontWeight.bold,
-            //     color: AppColors.ultramarineBlue,
-            //   ),
-            // ),
-            SizedBox(height: 20.0),
             Text(
-              'Your premier overseas goods ordering app',
+              user == null
+                  ? 'Your premier overseas goods ordering app'
+                  : "Let's get you started. \nOrder your dream product at an affordable price.",
               style: TextStyle(
                 fontSize: 18.0,
                 color: AppColors.grey,
@@ -35,7 +36,23 @@ class WelcomeScreen extends StatelessWidget {
             PrimaryButton(
               text: 'Next',
               onPressed: () {
-                Navigator.pushReplacementNamed(context, '/signIn');
+                if (user != null) {
+                  // User is signed in, fetch user details
+                  String userName = user?.displayName ?? 'Guest';
+                  String userProfilePicture = user?.photoURL ?? '';
+                  String userEmail = user?.email ?? '';
+                  Navigator.pushReplacementNamed(
+                    context,
+                    '/main',
+                    arguments: {
+                      'userName': userName,
+                      'userProfilePicture': userProfilePicture,                      
+                      'userEmail': userEmail,
+                    },
+                  );
+                } else {
+                  Navigator.pushReplacementNamed(context, '/signIn');
+                }
               },
             ),
           ],

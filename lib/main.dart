@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:provider/provider.dart';
+import 'package:orderinapp/firebase_options.dart';
 import './utils/theme.dart';
 import './pages/home_page.dart';
 import './pages/order_tracking_page.dart';
@@ -10,45 +11,49 @@ import './welcome/welcome_screen.dart';
 import './welcome/signin.dart';
 import './welcome/sign_up.dart';
 import './components/bottom_nav.dart';
+import './provider/user_provider.dart'; // Import the UserProvider
+import './provider/theme_provider.dart'; // Import the ThemeProvider
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
-  runApp(OrderInApp());
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => UserProvider()),
+        ChangeNotifierProvider(create: (context) => ThemeProvider()),
+      ],
+      child: OrderInApp(),
+    ),
+  );
 }
 
 class OrderInApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'OrderIn',
-      theme: appTheme,
-      initialRoute: '/',
-      routes: {
-        '/': (context) => LoadingScreen(),
-        '/welcome': (context) => WelcomeScreen(),
-        '/signIn': (context) => SignInScreen(),
-        '/signup': (context) => SignUpScreen(),
-        '/main': (context) => MainScreen(
-          userName: ModalRoute.of(context)?.settings.arguments != null
-              ? (ModalRoute.of(context)!.settings.arguments as Map)['userName']
-              : '',
-          userProfilePicture: ModalRoute.of(context)?.settings.arguments != null
-              ? (ModalRoute.of(context)!.settings.arguments as Map)['userProfilePicture']
-              : '',
-        ),
+    return Consumer<ThemeProvider>(
+      builder: (context, themeProvider, child) {
+        return MaterialApp(
+          title: 'OrderIn',
+          theme: themeProvider.themeData,
+          initialRoute: '/',
+          routes: {
+            '/': (context) => LoadingScreen(),
+            '/welcome': (context) => WelcomeScreen(),
+            '/signIn': (context) => SignInScreen(),
+            '/signup': (context) => SignUpScreen(),
+            '/main': (context) => MainScreen(),
+          },
+          debugShowCheckedModeBanner: false,
+        );
       },
-      debugShowCheckedModeBanner: false,
     );
   }
 }
 
 class MainScreen extends StatefulWidget {
-  final String userName;
-  final String userProfilePicture;
-
-  MainScreen({required this.userName, required this.userProfilePicture});
-
   @override
   _MainScreenState createState() => _MainScreenState();
 }
@@ -62,7 +67,7 @@ class _MainScreenState extends State<MainScreen> {
   void initState() {
     super.initState();
     _pages = <Widget>[
-      HomePage(userName: widget.userName, userProfilePicture: widget.userProfilePicture),
+      HomePage(),
       OrderTrackingPage(),
       FavoriteRetailersPage(),
       // ProfilePage(), // Uncomment when ProfilePage is implemented

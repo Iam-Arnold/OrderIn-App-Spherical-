@@ -1,4 +1,8 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:orderinapp/main.dart';
+import 'package:orderinapp/welcome/loading_screen.dart';
+import 'package:orderinapp/welcome/welcome_screen.dart';
 import '../utils/colors.dart';
 import '../components/primary_button.dart';
 import '../authentication/auth_service.dart';
@@ -11,35 +15,70 @@ class SignInScreen extends StatefulWidget {
 }
 
 class _SignInScreenState extends State<SignInScreen> {
-  final AuthService _auth = AuthService();
+  //final AuthService _auth = AuthService();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
   final GoogleSignInService _googleSignInService = GoogleSignInService();
 
+  User? _user;
+  
   @override
   void initState() {
     super.initState();
-    _googleSignInService.isSignedIn.addListener(() {
-      if (_googleSignInService.isSignedIn.value) {
-        Navigator.pushReplacementNamed(context, '/main');
-      } else {
-        showDialog(
-          context: context,
-          builder: (context) {
-            return AlertDialog(
-              title: Text('Sign In Error'),
-              content: Text('There was an error signing in with Google.'),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: Text('OK'),
-                ),
-              ],
-            );
-          },
-        );
-      }
+    _auth.authStateChanges().listen((event){
+      setState((){
+        _user = event;
+      //   if (_user != null) {
+      //   _showSuccessDialog();
+      // } else {
+      //   _showErrorDialog();
+      // }
+      });
     });
+  }
+
+  void _showSuccessDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20.0),
+          ),
+          title: Text('Account Created'),
+          content: Text('Successfully created an account.'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                Navigator.pushReplacementNamed(context, '/welcome');
+              },
+              child: Text('Continue'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showErrorDialog() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Sign In Error'),
+          content: Text('There was an error signing in with Google.'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -51,7 +90,7 @@ class _SignInScreenState extends State<SignInScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
+      body: _user != null ? WelcomeScreen() : Stack(
         children: [
           // Background image
           Container(
@@ -115,7 +154,7 @@ class _SignInScreenState extends State<SignInScreen> {
                     text: 'Continue as Guest',
                     onPressed: () {
                       // Handle guest sign-in
-                      Navigator.pushReplacementNamed(context, '/main');
+                      //Navigator.pushReplacementNamed(context, '/main');
                     },
                   ),
                   SizedBox(height: 16.0),

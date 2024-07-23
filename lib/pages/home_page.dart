@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../utils/colors.dart';
 import '../components/top_navbar.dart';
 import '../services/api/retailer_mock_api.dart';
@@ -8,15 +9,13 @@ import './chat_page.dart';
 import 'all_retailers.dart';
 import '../services/api/product_mock_api.dart';
 import '../models/products.dart';
-import '../components/spherical_loader.dart'; // Import the spherical loader
-import '../components/retailer_card.dart'; // Import the RetailerCard component
+import '../components/spherical_loader.dart';
+import '../components/retailer_card.dart';
+import '../components/menu_drawer.dart';
+import '../provider/user_provider.dart';
+import '../provider/theme_provider.dart';
 
 class HomePage extends StatefulWidget {
-  final String userName;
-  final String userProfilePicture;
-
-  HomePage({required this.userName, required this.userProfilePicture});
-
   @override
   _HomePageState createState() => _HomePageState();
 }
@@ -39,12 +38,6 @@ class _HomePageState extends State<HomePage> {
         title: Text('OrderIn'),
         actions: [
           IconButton(
-            icon: Icon(Icons.shopping_cart),
-            onPressed: () {
-              // Handle cart action
-            },
-          ),
-          IconButton(
             icon: Icon(Icons.chat),
             onPressed: () {
               Navigator.push(
@@ -53,9 +46,54 @@ class _HomePageState extends State<HomePage> {
               );
             },
           ),
-          _buildUserAvatar(widget.userName, widget.userProfilePicture), // Add user avatar here
-        ],
-        leading: Icon(Icons.shopping_basket),
+          Padding(
+            padding: const EdgeInsets.only(right: 16.0),
+            child: GestureDetector(
+              onTap: () {
+                // Handle profile tap
+              },
+              child: CircleAvatar(
+                backgroundImage: NetworkImage('https://example.com/default-profile.png'), // Default image
+                child: Consumer<UserProvider>(
+                  builder: (context, userProvider, child) {
+                    final String userName = userProvider.userName ?? 'Guest';
+                    final String userProfilePicture = userProvider.userProfilePicture ?? '';
+
+                    if (userProfilePicture.isNotEmpty) {
+                      return CircleAvatar(
+                        backgroundImage: NetworkImage(userProfilePicture),
+                      );
+                    } else {
+                      return Text(
+                        userName[0],
+                        style: TextStyle(color: Colors.white, fontSize: 18),
+                      );
+                    }
+                  },
+                ),
+              ),
+            ),
+          ),
+        ],      
+      ),
+      drawer: Consumer<UserProvider>(
+        builder: (context, userProvider, child) {
+          final String userName = userProvider.userName ?? 'Guest';
+          final String userProfilePicture = userProvider.userProfilePicture ?? '';
+          final String userEmail = userProvider.userEmail ?? '';
+
+          return MenuDrawer(
+            userName: userName,
+            userProfilePicture: userProfilePicture,
+            userEmail: userEmail,
+            onLogout: () {
+              // Handle logout
+            },
+            onBecomeRetailer: () {
+              // Handle becoming a retailer
+            },
+          );
+        },
       ),
       body: FutureBuilder<List<String>>(
         future: categoriesFuture,
@@ -92,27 +130,6 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildUserAvatar(String userName, String userProfilePicture) {
-    return Padding(
-      padding: const EdgeInsets.only(right: 16.0),
-      child: GestureDetector(
-        onTap: () {
-          // Handle profile tap
-        },
-        child: CircleAvatar(
-          backgroundImage: userProfilePicture.isNotEmpty
-              ? NetworkImage(userProfilePicture)
-              : null,
-          child: userProfilePicture.isEmpty
-              ? Text(
-                  userName[0],
-                  style: TextStyle(color: Colors.white, fontSize: 18),
-                )
-              : null,
-        ),
-      ),
-    );
-  }
   Widget _buildHeaderCard(BuildContext context) {
     return Card(
       shape: RoundedRectangleBorder(
@@ -201,19 +218,27 @@ class _HomePageState extends State<HomePage> {
       retailersFutures[title] = apiService.fetchRetailers(title, limit: 10);
     }
 
+    bool isDarkTheme = Theme.of(context).brightness == Brightness.dark;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              title,
-              style: TextStyle(
-                fontSize: 18.0,
-                fontWeight: FontWeight.bold,
-                color: AppColors.darkBlue,
-              ),
+            Consumer<ThemeProvider>(
+              builder: (context, ThemeProvider, child){
+              return (
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 18.0,
+                    fontWeight: FontWeight.bold,
+                    color: ThemeProvider.switchThemeIcon() ? AppColors.darkBlue: AppColors.white,
+                  ),
+                )
+              );
+              }
             ),
             GestureDetector(
               onTap: () {
@@ -239,13 +264,18 @@ class _HomePageState extends State<HomePage> {
                   ),
                 );
               },
-              child: Text(
+              child: Consumer<ThemeProvider>(
+                builder: (context, themeProvider, child) {
+                  return (Text(
                 'See More',
                 style: TextStyle(
                   fontSize: 14.0,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.ultramarineBlue,
+                  color: themeProvider.switchThemeIcon()? AppColors.ultramarineBlue : AppColors.grey,
                 ),
+              )
+              );
+                }
               ),
             ),
           ],

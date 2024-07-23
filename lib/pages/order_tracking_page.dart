@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../components/top_navbar.dart'; // Import the custom app bar
-import '../components/bottom_nav.dart';
+import 'package:provider/provider.dart';
+import '../provider/theme_provider.dart';
+import '../utils/colors.dart';
 
 class OrderTrackingPage extends StatelessWidget {
   @override
@@ -31,17 +33,20 @@ class OrderTrackingPage extends StatelessWidget {
   }
 
   Widget _buildOrderTile(BuildContext context, String orderNumber, String status, DateTime date, Color statusColor) {
-    return Card(
+    return Consumer<ThemeProvider>(
+      builder: (context, themeProvider, child) {
+        return Card(
+      color: themeProvider.switchThemeIcon() ? AppColors.white : AppColors.darkBlue,    
       margin: const EdgeInsets.symmetric(vertical: 8.0),
       child: ListTile(
         leading: Icon(Icons.check_circle, color: statusColor),
-        title: Text(orderNumber, style: TextStyle(fontWeight: FontWeight.bold)),
+        title: Text(orderNumber, style: TextStyle(fontWeight: FontWeight.bold, color: const Color.fromARGB(255, 247, 36, 36))),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text('Status: $status', style: TextStyle(color: statusColor)),
             SizedBox(height: 4.0),
-            Text('Date: ${date.toLocal()}'.split(' ')[0]),
+            Text('Date: ${date.toLocal()}'.split(' ')[0], style: TextStyle(color: themeProvider.switchThemeIcon() ? AppColors.darkBlue.withOpacity(0.7) : AppColors.white.withOpacity(0.5))),
           ],
         ),
         trailing: Icon(Icons.arrow_forward),
@@ -50,5 +55,7 @@ class OrderTrackingPage extends StatelessWidget {
         },
       ),
     );
+      }
+    );  
   }
 }

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../utils/colors.dart';
+import '../provider/theme_provider.dart';
 
 class BottomNavigation extends StatefulWidget {
   final int selectedIndex;
@@ -14,29 +16,35 @@ class BottomNavigation extends StatefulWidget {
 class _BottomNavigationState extends State<BottomNavigation> {
   @override
   Widget build(BuildContext context) {
-    return BottomNavigationBar(
-      items: [
-        BottomNavigationBarItem(
-          icon: Icon(Icons.home),
-          label: 'Home',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.shopping_cart),
-          label: 'Orders',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.favorite),
-          label: 'Favorites',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.person),
-          label: 'Profile', // Add ProfilePage if needed
-        ),
-      ],
-      currentIndex: widget.selectedIndex,
-      selectedItemColor: AppColors.ultramarineBlue,
-      unselectedItemColor: AppColors.grey,
-      onTap: widget.onItemTapped,
+    return Consumer<ThemeProvider>(
+      builder: (context, themeProvider, child) {
+        //bool isDarkTheme = Theme.of(context).brightness == Brightness.dark;
+
+        return BottomNavigationBar(
+          items: [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.home),
+              label: 'Home',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.shopping_cart),
+              label: 'Orders',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.favorite),
+              label: 'Favorites',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.person),
+              label: 'Profile',
+            ),
+          ],
+          currentIndex: widget.selectedIndex,
+          selectedItemColor: themeProvider.switchThemeIcon() ? AppColors.ultramarineBlue : AppColors.white,
+          unselectedItemColor: AppColors.grey,
+          onTap: widget.onItemTapped,
+        );
+      },
     );
   }
 }

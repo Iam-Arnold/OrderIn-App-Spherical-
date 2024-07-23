@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:orderinapp/provider/theme_provider.dart';
+import 'package:orderinapp/utils/colors.dart';
 import '../models/retailer.dart';
 import './store_details_page.dart';
 import '../services/api/product_mock_api.dart';
 import '../models/products.dart';
+import 'package:provider/provider.dart';
+
 
 class AllRetailersPage extends StatelessWidget {
   final String category;
@@ -38,11 +42,13 @@ class AllRetailersPage extends StatelessWidget {
                 ),
               );
             },
-            child: Container(
+            child: Consumer<ThemeProvider>(
+              builder: (context, themeProvider, child){
+                return Container(
               margin: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
               padding: EdgeInsets.all(12.0),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: themeProvider.switchThemeIcon() ? AppColors.white : AppColors.darkBlue,
                 borderRadius: BorderRadius.circular(16.0),
                 boxShadow: [
                   BoxShadow(
@@ -80,7 +86,7 @@ class AllRetailersPage extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 16.0,
                             fontWeight: FontWeight.bold,
-                            color: Colors.black,
+                            color: AppColors.lightBlue,
                           ),
                         ),
                         SizedBox(height: 4.0),
@@ -119,8 +125,11 @@ class AllRetailersPage extends StatelessWidget {
                   ),
                 ],
               ),
-            ),
-          );
+            );
+
+              }
+            )
+        );
         },
       ),
     );
