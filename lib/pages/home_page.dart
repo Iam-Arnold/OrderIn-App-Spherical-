@@ -14,6 +14,8 @@ import '../components/retailer_card.dart';
 import '../components/menu_drawer.dart';
 import '../provider/user_provider.dart';
 import '../provider/theme_provider.dart';
+import './phone_reg_page.dart';
+import './contact_selection_page.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -29,6 +31,10 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     categoriesFuture = apiService.fetchCategories();
+    // Ensure UserProvider is initialized
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<UserProvider>(context, listen: false).initializeUser();
+    });
   }
 
   @override
@@ -40,10 +46,18 @@ class _HomePageState extends State<HomePage> {
           IconButton(
             icon: Icon(Icons.chat),
             onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => ChatPage()),
-              );
+              UserProvider userProvider = Provider.of<UserProvider>(context, listen: false);
+              if (userProvider.userPhoneNumber.isEmpty) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => RegisterPhonePage()),
+                );
+              } else {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => ContactSelectionPage()),
+                );
+              }
             },
           ),
           Padding(
@@ -56,8 +70,9 @@ class _HomePageState extends State<HomePage> {
                 backgroundImage: NetworkImage('https://example.com/default-profile.png'), // Default image
                 child: Consumer<UserProvider>(
                   builder: (context, userProvider, child) {
-                    final String userName = userProvider.userName ?? 'Guest';
-                    final String userProfilePicture = userProvider.userProfilePicture ?? '';
+                    userProvider.initializeUser();
+                    final String userName = userProvider.userName.isNotEmpty ? userProvider.userName : 'Guest';
+                    final String userProfilePicture = userProvider.userProfilePicture;
 
                     if (userProfilePicture.isNotEmpty) {
                       return CircleAvatar(
@@ -78,9 +93,9 @@ class _HomePageState extends State<HomePage> {
       ),
       drawer: Consumer<UserProvider>(
         builder: (context, userProvider, child) {
-          final String userName = userProvider.userName ?? 'Guest';
-          final String userProfilePicture = userProvider.userProfilePicture ?? '';
-          final String userEmail = userProvider.userEmail ?? '';
+          final String userName = userProvider.userName.isNotEmpty ? userProvider.userName : 'Guest';
+          final String userProfilePicture = userProvider.userProfilePicture;
+          final String userEmail = userProvider.userEmail;
 
           return MenuDrawer(
             userName: userName,

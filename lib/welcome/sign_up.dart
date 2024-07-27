@@ -113,13 +113,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     text: 'Continue as Guest',
                     onPressed: () {
                       // Handle guest sign-in
-                     // Navigator.pushReplacementNamed(context, '/main');
+                     Navigator.pushReplacementNamed(context, '/main');
                     },
                   ),
                   SizedBox(height: 16.0),
                   TextButton(
                     onPressed: () {
-                      Navigator.pushReplacementNamed(context, '/signin');
+                      Navigator.pushReplacementNamed(context, '/signIn');
                     },
                     child: Text(
                       'Already have an account? Sign in',

@@ -6,14 +6,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class GoogleSignInService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final GoogleSignIn googleSignIn = GoogleSignIn(
-    //clientId: '474792991550-3c4qacc9fc1747746248leben37gj7t3.apps.googleusercontent.com',
+    // clientId: '474792991550-3c4qacc9fc1747746248leben37gj7t3.apps.googleusercontent.com',
   );
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   ValueNotifier<bool> isSignedIn = ValueNotifier<bool>(false);
 
   // Sign in or Sign up with Google
-  Future<void> signInWithGoogle() async {
+  Future<void> signInWithGoogle({String? phoneNumber}) async {
     try {
       final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
       if (googleUser == null) {
@@ -38,6 +38,7 @@ class GoogleSignInService {
           'name': user.displayName,
           'email': user.email,
           'profilePicture': user.photoURL,
+          'phoneNumber': phoneNumber ?? '', // Save phone number if available
         });
         isSignedIn.value = true;
       } else {

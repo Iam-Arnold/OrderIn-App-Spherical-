@@ -1,41 +1,65 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class UserProvider with ChangeNotifier {
   String _userName = '';
-  String _userProfilePicture = '';
   String _userEmail = '';
+  String _userProfilePicture = '';
+  String _userPhoneNumber = '';
 
   String get userName => _userName;
-  String get userProfilePicture => _userProfilePicture;
   String get userEmail => _userEmail;
-
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  String get userProfilePicture => _userProfilePicture;
+  String get userPhoneNumber => _userPhoneNumber;
 
   UserProvider() {
-    _fetchUserData();
+    initializeUser().then((_) {
+      FirebaseAuth.instance.authStateChanges().listen((User? user) {
+        if (user != null) {
+          fetchUserDetails(user);
+        }
+        print(user);
+      });
+    });
   }
 
-  Future<void> _fetchUserData() async {
-    User? user = _auth.currentUser;
+  Future<void> initializeUser() async {
+    User? user = FirebaseAuth.instance.currentUser;
     if (user != null) {
-      DocumentSnapshot userDoc = await _firestore.collection('users').doc(user.uid).get();
-      if (userDoc.exists) {
-        Map<String, dynamic> userData = userDoc.data() as Map<String, dynamic>;
-        _userName = userData['name'] ?? '';
-        _userProfilePicture = userData['profilePicture'] ?? '';
-        _userEmail = user.email ?? '';
-        notifyListeners();
-      }
+      await fetchUserDetails(user);
     }
   }
 
-  void setUser(String name, String picture, String email) {
-    _userName = name;
-    _userProfilePicture = picture;
-    _userEmail = email;
-    notifyListeners();
+  Future<void> fetchUserDetails(User user) async {
+    try {
+      DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
+      if (userDoc.exists) {
+        Map<String, dynamic>? userData = userDoc.data() as Map<String, dynamic>?;
+        if (userData != null) {
+          _userName = userData['name'] ?? '';
+          _userProfilePicture = userData['profilePicture'] ?? '';
+          _userEmail = user.email ?? '';
+          _userPhoneNumber = userData['phoneNumber'] ?? '';
+          print("Fetched Details: $_userName, $_userProfilePicture, $_userPhoneNumber");
+          notifyListeners();
+        }
+      } else {
+        print("No user document found for UID: ${user.uid}");
+      }
+    } catch (e) {
+      print("Error fetching user details: $e");
+    }
+  }
+
+  Future<void> updatePhoneNumber(String phoneNumber) async {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      await FirebaseFirestore.instance.collection('users').doc(user.uid).update({
+        'phoneNumber': phoneNumber,
+      });
+      _userPhoneNumber = phoneNumber;
+      notifyListeners();
+    }
   }
 }
