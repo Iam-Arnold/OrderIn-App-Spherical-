@@ -32,14 +32,43 @@ class GoogleSignInService {
       User? user = result.user;
 
       if (user != null) {
-        // Save user info to Firestore
-        await _firestore.collection('users').doc(user.uid).set({
-          'uid': user.uid,
-          'name': user.displayName,
-          'email': user.email,
-          'profilePicture': user.photoURL,
-          'phoneNumber': phoneNumber ?? '', // Save phone number if available
-        });
+        DocumentReference userRef = _firestore.collection('users').doc(user.uid);
+        DocumentSnapshot userDoc = await userRef.get();
+
+        if (userDoc.exists) {
+          // Fetch existing details if user document exists
+          Map<String, dynamic>? userData = userDoc.data() as Map<String, dynamic>?;
+          if (userData != null) {
+            // Use existing details
+            String existingName = userData['name'] ?? user.displayName ?? '';
+            String existingProfilePicture = userData['profilePicture'] ?? user.photoURL ?? '';
+            String existingEmail = userData['email'] ?? user.email ?? '';
+            String existingPhoneNumber = userData['phoneNumber'] ?? phoneNumber ?? '';
+
+            // Update local user details (optional, depending on your app's logic)
+            // _userName = existingName;
+            // _userProfilePicture = existingProfilePicture;
+            // _userEmail = existingEmail;
+            // _userPhoneNumber = existingPhoneNumber;
+
+            // Ensure that the Firestore document is up-to-date with any new information
+            await userRef.update({
+              'name': existingName,
+              'profilePicture': existingProfilePicture,
+              'email': existingEmail,
+              'phoneNumber': existingPhoneNumber,
+            });
+          }
+        } else {
+          // Create new user document if it does not exist
+          await userRef.set({
+            'uid': user.uid,
+            'name': user.displayName,
+            'email': user.email,
+            'profilePicture': user.photoURL,
+            'phoneNumber': phoneNumber ?? '', // Save phone number if available
+          });
+        }
         isSignedIn.value = true;
       } else {
         isSignedIn.value = false;

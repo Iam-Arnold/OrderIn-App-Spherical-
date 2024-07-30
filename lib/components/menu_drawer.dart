@@ -2,19 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../utils/colors.dart';
 import '../provider/theme_provider.dart';
+import '../provider/user_provider.dart';
 
 class MenuDrawer extends StatelessWidget {
   final String userName;
   final String userProfilePicture;
   final String userEmail;
-  final VoidCallback onLogout;
   final VoidCallback onBecomeRetailer;
 
   MenuDrawer({
     required this.userName,
     required this.userProfilePicture,
     required this.userEmail,
-    required this.onLogout,
     required this.onBecomeRetailer,
   });
 
@@ -77,7 +76,10 @@ class MenuDrawer extends StatelessWidget {
                   'Logout',
                   style: TextStyle(color: themeProvider.switchThemeIcon() ? AppColors.ultramarineBlue : AppColors.white),
                 ),
-                onTap: onLogout,
+                onTap: () {
+                  Provider.of<UserProvider>(context, listen: false).logout();
+                  Navigator.of(context).pushReplacementNamed('/signIn'); // Replace with your login route
+                },
               ),
             ],
           ),

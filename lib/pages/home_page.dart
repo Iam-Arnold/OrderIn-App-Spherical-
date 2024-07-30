@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../utils/colors.dart';
 import '../components/top_navbar.dart';
 import '../services/api/retailer_mock_api.dart';
@@ -33,9 +34,13 @@ class _HomePageState extends State<HomePage> {
     categoriesFuture = apiService.fetchCategories();
     // Ensure UserProvider is initialized
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<UserProvider>(context, listen: false).initializeUser();
+      User? user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        Provider.of<UserProvider>(context, listen: false).fetchUserDetails(user);
+      }
     });
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -62,7 +67,6 @@ class _HomePageState extends State<HomePage> {
                 backgroundImage: NetworkImage('https://example.com/default-profile.png'), // Default image
                 child: Consumer<UserProvider>(
                   builder: (context, userProvider, child) {
-                    userProvider.initializeUser();
                     final String userName = userProvider.userName.isNotEmpty ? userProvider.userName : 'Guest';
                     final String userProfilePicture = userProvider.userProfilePicture;
 
@@ -93,9 +97,6 @@ class _HomePageState extends State<HomePage> {
             userName: userName,
             userProfilePicture: userProfilePicture,
             userEmail: userEmail,
-            onLogout: () {
-              // Handle logout
-            },
             onBecomeRetailer: () {
               // Handle becoming a retailer
             },

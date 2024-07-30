@@ -80,6 +80,10 @@ flutter:
     - assets/orderinLogo.png
     - assets/cargoflight.jpg
     - assets/dartorderinLogo.png
+    - assets/trust.jpg
+    - assets/affordable.jpg
+    - assets/quality.jpg
+    - assets/transparent.jpg
     - assets/cargoplane.jpg
 
   # An image asset can refer to one or more resolution-specific "variants", see

@@ -1,9 +1,14 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
 import '../provider/user_provider.dart';
 import '../provider/theme_provider.dart';
 import '../utils/colors.dart';
+import 'home_page.dart'; // Replace with your actual import
+import 'order_tracking_page.dart'; // Replace with your actual import
+import './favourite_retailer.dart'; // Replace with your actual import
+//import 'become_retailer_page.dart'; // Replace with your actual import
 
 class ProfilePage extends StatefulWidget {
   @override
@@ -14,6 +19,9 @@ class _ProfilePageState extends State<ProfilePage> {
   final ImagePicker _picker = ImagePicker();
   TextEditingController _nameController = TextEditingController();
   TextEditingController _phoneController = TextEditingController();
+  late PageController _pageController;
+  late Timer _timer;
+  int _currentPage = 0;
 
   @override
   void initState() {
@@ -21,6 +29,28 @@ class _ProfilePageState extends State<ProfilePage> {
     UserProvider userProvider = Provider.of<UserProvider>(context, listen: false);
     _nameController.text = userProvider.userName;
     _phoneController.text = userProvider.userPhoneNumber;
+
+    _pageController = PageController(initialPage: 0);
+    _timer = Timer.periodic(Duration(seconds: 3), (Timer timer) {
+      if (_currentPage < 3) {
+        _currentPage++;
+      } else {
+        _currentPage = 0;
+      }
+
+      _pageController.animateToPage(
+        _currentPage,
+        duration: Duration(milliseconds: 800),
+        curve: Curves.easeInOut,
+      );
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer.cancel();
+    _pageController.dispose();
+    super.dispose();
   }
 
   Future<void> _pickImage(UserProvider userProvider) async {
@@ -36,11 +66,19 @@ class _ProfilePageState extends State<ProfilePage> {
       builder: (context) {
         return AlertDialog(
           title: Text(title),
-          content: TextField(
-            controller: controller,
-            decoration: InputDecoration(
-              labelText: title,
-              hintText: 'Enter $title',
+          content: Container(
+            width: MediaQuery.of(context).size.width * 0.7, // Reduced width
+            height: 100, // Reduced height
+            child: Column(
+              children: [
+                TextField(
+                  controller: controller,
+                  decoration: InputDecoration(
+                    labelText: title,
+                    hintText: 'Enter $title',
+                  ),
+                ),
+              ],
             ),
           ),
           actions: [
@@ -58,6 +96,53 @@ class _ProfilePageState extends State<ProfilePage> {
           ],
         );
       },
+    );
+  }
+
+  Widget _buildSlidingCard({
+    required String title,
+    required String imagePath,
+  }) {
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 10.0),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12.0),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black26,
+            blurRadius: 4,
+            offset: Offset(2, 2),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(12.0),
+        child: Stack(
+          children: [
+            Image.asset(
+              imagePath,
+              fit: BoxFit.cover,
+              width: double.infinity,
+              height: double.infinity,
+            ),
+            Container(
+              decoration: BoxDecoration(
+                color: AppColors.darkBlue.withOpacity(0.6),
+              ),
+            ),
+            Center(
+              child: Text(
+                title,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -115,8 +200,8 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
                 SizedBox(height: 16),
                 ListTile(
-                  title: Text('Name'),
-                  subtitle: Text(userProvider.userName),
+                  title: Text('Name', style: TextStyle(color: AppColors.grey)),
+                  subtitle: Text(userProvider.userName, style: TextStyle(color: AppColors.lightBlue)),
                   trailing: IconButton(
                     icon: Icon(Icons.edit, color: AppColors.ultramarineBlue),
                     onPressed: () => _showEditDialog(
@@ -130,12 +215,12 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                 ),
                 ListTile(
-                  title: Text('Email'),
-                  subtitle: Text(userProvider.userEmail),
+                  title: Text('Email', style: TextStyle(color: AppColors.grey)),
+                  subtitle: Text(userProvider.userEmail, style: TextStyle(color: AppColors.lightBlue)),
                 ),
                 ListTile(
-                  title: Text('Phone Number'),
-                  subtitle: Text(userProvider.userPhoneNumber.isNotEmpty ? userProvider.userPhoneNumber : 'Add phone number'),
+                  title: Text('Phone Number', style: TextStyle(color: AppColors.grey)),
+                  subtitle: Text(userProvider.userPhoneNumber.isNotEmpty ? userProvider.userPhoneNumber : 'Add phone number', style: TextStyle(color: AppColors.lightBlue)),
                   trailing: IconButton(
                     icon: Icon(Icons.edit, color: AppColors.ultramarineBlue),
                     onPressed: () => _showEditDialog(
@@ -146,6 +231,30 @@ class _ProfilePageState extends State<ProfilePage> {
                         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Phone number updated')));
                       },
                     ),
+                  ),
+                ),
+                SizedBox(height: 24),
+                Expanded(
+                  child: PageView(
+                    controller: _pageController,
+                    children: [
+                      _buildSlidingCard(
+                        title: 'Quality',
+                        imagePath: 'assets/quality.jpg',
+                      ),
+                      _buildSlidingCard(
+                        title: 'Affordable',
+                        imagePath: 'assets/affordable.jpg',
+                      ),
+                      _buildSlidingCard(
+                        title: 'Trust',
+                        imagePath: 'assets/trust.jpg',
+                      ),
+                      _buildSlidingCard(
+                        title: 'Transparent',
+                        imagePath: 'assets/transparent.jpg',
+                      ),
+                    ],
                   ),
                 ),
               ],
