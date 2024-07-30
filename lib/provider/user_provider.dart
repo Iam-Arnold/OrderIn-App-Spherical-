@@ -1,6 +1,9 @@
+import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:image_picker/image_picker.dart';
 
 class UserProvider with ChangeNotifier {
   String _userName = '';
@@ -19,7 +22,6 @@ class UserProvider with ChangeNotifier {
         if (user != null) {
           fetchUserDetails(user);
         }
-        print(user);
       });
     });
   }
@@ -41,11 +43,8 @@ class UserProvider with ChangeNotifier {
           _userProfilePicture = userData['profilePicture'] ?? '';
           _userEmail = user.email ?? '';
           _userPhoneNumber = userData['phoneNumber'] ?? '';
-          print("Fetched Details: $_userName, $_userProfilePicture, $_userPhoneNumber");
           notifyListeners();
         }
-      } else {
-        print("No user document found for UID: ${user.uid}");
       }
     } catch (e) {
       print("Error fetching user details: $e");
@@ -60,6 +59,42 @@ class UserProvider with ChangeNotifier {
       });
       _userPhoneNumber = phoneNumber;
       notifyListeners();
+    }
+  }
+
+  Future<void> updateUserName(String name) async {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      await FirebaseFirestore.instance.collection('users').doc(user.uid).update({
+        'name': name,
+      });
+      _userName = name;
+      notifyListeners();
+    }
+  }
+
+  Future<void> updateProfilePicture(String filePath) async {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      try {
+        // Upload image to Firebase Storage
+        Reference storageReference = FirebaseStorage.instance.ref().child('profile_pictures/${user.uid}');
+        UploadTask uploadTask = storageReference.putFile(File(filePath));
+        TaskSnapshot taskSnapshot = await uploadTask;
+
+        // Get download URL
+        String downloadURL = await taskSnapshot.ref.getDownloadURL();
+
+        // Update Firestore document
+        await FirebaseFirestore.instance.collection('users').doc(user.uid).update({
+          'profilePicture': downloadURL,
+        });
+
+        _userProfilePicture = downloadURL;
+        notifyListeners();
+      } catch (e) {
+        print("Error updating profile picture: $e");
+      }
     }
   }
 }

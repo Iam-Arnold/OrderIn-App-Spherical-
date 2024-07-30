@@ -3,22 +3,22 @@ import '../../utils/colors.dart';
 
 class MessageBubble extends StatelessWidget {
   final String message;
-  final bool isMe;
+  final bool isCustomer;
 
-  MessageBubble({required this.message, required this.isMe});
+  MessageBubble({required this.message, required this.isCustomer});
 
   @override
   Widget build(BuildContext context) {
     return Align(
-      alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
+      alignment: isCustomer ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
         margin: EdgeInsets.symmetric(vertical: 5.0, horizontal: 8.0),
         padding: EdgeInsets.all(10.0),
         decoration: BoxDecoration(
-          color: isMe ? AppColors.lightBlue : AppColors.ultramarineBlue,
+          color: isCustomer ? AppColors.lightBlue : AppColors.ultramarineBlue,
           borderRadius: BorderRadius.only(
-            topLeft: isMe ? Radius.circular(10.0) : Radius.circular(0),
-            topRight: !isMe ? Radius.circular(10.0) : Radius.circular(0),
+            topLeft: isCustomer ? Radius.circular(10.0) : Radius.circular(0),
+            topRight: !isCustomer ? Radius.circular(10.0) : Radius.circular(0),
             bottomLeft: Radius.circular(10.0),
             bottomRight: Radius.circular(10.0),
           ),

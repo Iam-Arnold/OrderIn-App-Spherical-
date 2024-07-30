@@ -13,6 +13,7 @@ import './welcome/sign_up.dart';
 import './components/bottom_nav.dart';
 import './provider/user_provider.dart'; // Import the UserProvider
 import './provider/theme_provider.dart'; // Import the ThemeProvider
+import './pages/profile_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -70,7 +71,7 @@ class _MainScreenState extends State<MainScreen> {
       HomePage(),
       OrderTrackingPage(),
       FavoriteRetailersPage(),
-      // ProfilePage(), // Uncomment when ProfilePage is implemented
+      ProfilePage(), // Uncomment when ProfilePage is implemented
     ];
   }
 

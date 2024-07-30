@@ -2,11 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'pin_input_page.dart';
+import '../utils/colors.dart';
+import 'package:provider/provider.dart';
+import '../provider/theme_provider.dart';
+
 
 class RegisterPhonePage extends StatefulWidget {
   @override
   _RegisterPhonePageState createState() => _RegisterPhonePageState();
 }
+
 
 class _RegisterPhonePageState extends State<RegisterPhonePage> {
   final TextEditingController _phoneNumberController = TextEditingController();
@@ -60,6 +65,7 @@ class _RegisterPhonePageState extends State<RegisterPhonePage> {
     }
   }
 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -71,19 +77,35 @@ class _RegisterPhonePageState extends State<RegisterPhonePage> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            IntlPhoneField(
-              controller: _phoneNumberController,
-              decoration: InputDecoration(
-                labelText: 'Phone Number',
-                border: OutlineInputBorder(
-                  borderSide: BorderSide(),
-                ),
-              ),
-              initialCountryCode: 'US', // Change this to your desired default country code
-              onChanged: (phone) {
-                setState(() {
-                  _completePhoneNumber = phone.completeNumber;
-                });
+            Consumer<ThemeProvider>(
+              builder: (context, themeProvider, child) {
+                return IntlPhoneField(
+                  controller: _phoneNumberController,
+                  dropdownTextStyle: TextStyle(color: AppColors.ultramarineBlue), // Customize dropdown text color
+                  decoration: InputDecoration(
+                    labelText: 'Phone Number',
+                    labelStyle: TextStyle(
+                      color: Colors.grey, // Set the text color to grey
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        color: Colors.grey, // Set the border color to grey
+                      ),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        color: AppColors.ultramarineBlue, // Change the border color when focused
+                      ),
+                    ),
+                  ),
+                  initialCountryCode: 'US', // Change this to your desired default country code
+                  onChanged: (phone) {
+                    setState(() {
+                      _completePhoneNumber = phone.completeNumber;
+                    });
+                  },
+                  style: TextStyle(color: themeProvider.switchThemeIcon() ? AppColors.darkBlue : AppColors.white),
+                );
               },
             ),
             SizedBox(height: 20),

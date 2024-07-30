@@ -30,10 +30,10 @@ class _PinInputPageState extends State<PinInputPage> {
       await _auth.signInWithCredential(credential);
       await _storeUserPhoneNumber(widget.phoneNumber);
 
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => ChatContactPage()),
-      );
+      // Navigator.pushReplacement(
+      //   //context,
+      //  // MaterialPageRoute(builder: (context) => ChatContactPage()),
+      // );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: ${e.toString()}')));
     }

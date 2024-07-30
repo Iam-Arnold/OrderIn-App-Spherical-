@@ -26,7 +26,6 @@ class MockApiService {
     // Generate a variable number of retailers for each category
     int numberOfRetailers = Random().nextInt(30) + 1; // Between 1 and 30
 
-    print('Printed no:: $numberOfRetailers');
     List<Retailer> allRetailers = List.generate(numberOfRetailers, (index) {
       return Retailer(
         '$category Store $index',
@@ -36,6 +35,21 @@ class MockApiService {
         'assets/images/${category.toLowerCase().replaceAll(' ', '_')}_placeholder.jpg',
       );
     });
+    return allRetailers.take(limit).toList();
+  }
+
+  Future<List<Retailer>> fetchAllRetailers({int limit = 30}) async {
+    // Simulate network delay
+    await Future.delayed(Duration(seconds: 2));
+    // Generate a fixed number of retailers
+    List<String> categories = await fetchCategories();
+    List<Retailer> allRetailers = [];
+
+    for (String category in categories) {
+      List<Retailer> retailers = await fetchRetailers(category, limit: limit);
+      allRetailers.addAll(retailers);
+    }
+
     return allRetailers.take(limit).toList();
   }
 }

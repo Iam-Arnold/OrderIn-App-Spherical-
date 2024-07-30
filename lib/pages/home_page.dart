@@ -43,21 +43,13 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         title: Text('OrderIn'),
         actions: [
-          IconButton(
+           IconButton(
             icon: Icon(Icons.chat),
             onPressed: () {
-              UserProvider userProvider = Provider.of<UserProvider>(context, listen: false);
-              if (userProvider.userPhoneNumber.isEmpty) {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => RegisterPhonePage()),
-                );
-              } else {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => ContactSelectionPage()),
-                );
-              }
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => ContactSelectionPage()),
+              );
             },
           ),
           Padding(

@@ -5,9 +5,9 @@ import '../components/chat/message_bubble.dart';
 import '../utils/colors.dart';
 
 class ChatPage extends StatefulWidget {
-  final String contactPhoneNumber;
+  final String retailerId;
 
-  ChatPage({required this.contactPhoneNumber});
+  ChatPage({required this.retailerId});
 
   @override
   _ChatPageState createState() => _ChatPageState();
@@ -25,7 +25,7 @@ class _ChatPageState extends State<ChatPage> {
       'text': _messageController.text,
       'createdAt': Timestamp.now(),
       'senderId': FirebaseAuth.instance.currentUser!.uid,
-      'receiverId': widget.contactPhoneNumber,
+      'receiverId': widget.retailerId,
     });
 
     _messageController.clear();
@@ -35,14 +35,18 @@ class _ChatPageState extends State<ChatPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.contactPhoneNumber),
+        title: Text('Chat with Retailer'),
         backgroundColor: AppColors.ultramarineBlue,
       ),
       body: Column(
         children: [
           Expanded(
             child: StreamBuilder(
-              stream: _messagesRef.orderBy('createdAt').snapshots(),
+              stream: _messagesRef
+                  .where('senderId', isEqualTo: FirebaseAuth.instance.currentUser!.uid)
+                  .where('receiverId', isEqualTo: widget.retailerId)
+                  .orderBy('createdAt')
+                  .snapshots(),
               builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
                 if (!snapshot.hasData) {
                   return Center(child: CircularProgressIndicator());
@@ -54,12 +58,11 @@ class _ChatPageState extends State<ChatPage> {
                   itemCount: messages.length,
                   itemBuilder: (context, index) {
                     final message = messages[index];
-                    final bool isMe = message['senderId'] ==
-                        FirebaseAuth.instance.currentUser!.uid;
+                    final bool isCustomer = message['senderId'] == FirebaseAuth.instance.currentUser!.uid;
 
                     return MessageBubble(
                       message: message['text'],
-                      isMe: isMe,
+                      isCustomer: isCustomer,
                     );
                   },
                 );
@@ -97,6 +100,120 @@ class _ChatPageState extends State<ChatPage> {
           ),
         ],
       ),
+    );
+  }
+}
+
+class ChatContactPage extends StatelessWidget {
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  void _startChat(BuildContext context, String retailerId) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ChatPage(retailerId: retailerId),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Select Retailer'),
+        backgroundColor: AppColors.ultramarineBlue,
+      ),
+      body: StreamBuilder<QuerySnapshot>(
+        stream: _firestore.collection('retailers').snapshots(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return Center(child: CircularProgressIndicator());
+          }
+
+          var retailers = snapshot.data!.docs;
+          if (retailers.isEmpty) {
+            return Center(child: Text('No retailers available.'));
+          }
+
+          List<Widget> retailerWidgets = [];
+          for (var retailer in retailers) {
+            var retailerName = retailer['name'];
+            var retailerId = retailer.id;
+
+            retailerWidgets.add(
+              Card(
+                elevation: 5,
+                margin: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+                child: ListTile(
+                  leading: CircleAvatar(
+                    child: Text(retailerName[0].toUpperCase()),
+                  ),
+                  title: Text(
+                    retailerName,
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  onTap: () => _startChat(context, retailerId),
+                ),
+              ),
+            );
+          }
+
+          return ListView(
+            children: retailerWidgets,
+          );
+        },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          // Add logic to add a new retailer (if applicable)
+          _showAddRetailerDialog(context);
+        },
+        child: Icon(Icons.add),
+      ),
+    );
+  }
+
+  void _showAddRetailerDialog(BuildContext context) {
+    final TextEditingController _retailerController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Add Retailer'),
+          content: TextField(
+            controller: _retailerController,
+            decoration: InputDecoration(
+              labelText: 'Retailer Name',
+              border: OutlineInputBorder(),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () async {
+                String retailerName = _retailerController.text.trim();
+                if (retailerName.isNotEmpty) {
+                  try {
+                    // Use a unique ID for the retailer
+                    await _firestore.collection('retailers').add({
+                      'name': retailerName,
+                    });
+                    Navigator.of(context).pop();
+                  } catch (e) {
+                    print('Error adding retailer: $e');
+                  }
+                }
+              },
+              child: Text('Add'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text('Cancel'),
+            ),
+          ],
+        );
+      },
     );
   }
 }
