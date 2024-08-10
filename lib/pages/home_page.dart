@@ -17,6 +17,8 @@ import '../provider/user_provider.dart';
 import '../provider/theme_provider.dart';
 import './phone_reg_page.dart';
 import './contact_selection_page.dart';
+import '../components/home_card_slider.dart';
+import './profile_page.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -41,14 +43,15 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-
   @override
   Widget build(BuildContext context) {
+    final userName = Provider.of<UserProvider>(context).userName;
+
     return Scaffold(
       appBar: AppBar(
         title: Text('OrderIn'),
         actions: [
-           IconButton(
+          IconButton(
             icon: Icon(Icons.chat),
             onPressed: () {
               Navigator.push(
@@ -60,9 +63,12 @@ class _HomePageState extends State<HomePage> {
           Padding(
             padding: const EdgeInsets.only(right: 16.0),
             child: GestureDetector(
-              onTap: () {
-                // Handle profile tap
-              },
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => ProfilePage()),
+              );
+            },
               child: CircleAvatar(
                 backgroundImage: NetworkImage('https://example.com/default-profile.png'), // Default image
                 child: Consumer<UserProvider>(
@@ -85,7 +91,7 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
           ),
-        ],      
+        ],
       ),
       drawer: Consumer<UserProvider>(
         builder: (context, userProvider, child) {
@@ -120,7 +126,7 @@ class _HomePageState extends State<HomePage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildHeaderCard(context),
+                    HomeCardSlider(userName: userName), // Add the card slider here
                     SizedBox(height: 16.0),
                     _buildCoreValuesSection(),
                     SizedBox(height: 16.0),

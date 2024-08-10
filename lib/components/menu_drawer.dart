@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../utils/colors.dart';
 import '../provider/theme_provider.dart';
 import '../provider/user_provider.dart';
+import '../pages/profile_page.dart';
 
 class MenuDrawer extends StatelessWidget {
   final String userName;
@@ -30,16 +31,24 @@ class MenuDrawer extends StatelessWidget {
               UserAccountsDrawerHeader(
                 accountName: Text(userName, style: TextStyle(color: Colors.white)),
                 accountEmail: Text(userEmail, style: TextStyle(color: Colors.white)),
-                currentAccountPicture: CircleAvatar(
-                  backgroundImage: userProfilePicture.isNotEmpty
-                      ? NetworkImage(userProfilePicture)
-                      : null,
-                  child: userProfilePicture.isEmpty
-                      ? Text(
-                          userName[0],
-                          style: TextStyle(color: Colors.white, fontSize: 40),
-                        )
-                      : null,
+                currentAccountPicture: GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => ProfilePage()),
+                    );
+                  },
+                  child: CircleAvatar(
+                    backgroundImage: userProfilePicture.isNotEmpty
+                        ? NetworkImage(userProfilePicture)
+                        : null,
+                    child: userProfilePicture.isEmpty
+                        ? Text(
+                            userName[0],
+                            style: TextStyle(color: Colors.white, fontSize: 40),
+                          )
+                        : null,
+                  ),
                 ),
               ),
               ListTile(

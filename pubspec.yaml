@@ -51,7 +51,10 @@ dependencies:
   pinput: ^5.0.0
   pin_code_fields: ^8.0.1
   image_picker: ^1.1.2
-  
+  image_cropper: ^8.0.1
+  share_plus: ^4.0.0
+  intl: ^0.19.0
+  smooth_page_indicator: ^1.2.0+3
 
 dev_dependencies:
   flutter_test:
@@ -85,6 +88,13 @@ flutter:
     - assets/quality.jpg
     - assets/transparent.jpg
     - assets/cargoplane.jpg
+    - assets/morning_bg.jpg
+    - assets/evening_bg.jpg
+    - assets/afternoon_bg.jpg
+    - assets/quality_bg.jpg
+    - assets/trust_bg.jpg
+    - assets/affordable_bg.jpg
+    - assets/transparent_bg.jpg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

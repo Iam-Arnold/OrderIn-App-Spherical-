@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
-import '../utils/colors.dart';
-import '../pages/product_details_page.dart';
+import 'package:orderinapp/provider/theme_provider.dart';
+import 'package:orderinapp/utils/colors.dart';
+import 'package:orderinapp/pages/product_details_page.dart';
+import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
 
 class StoreDetailsPage extends StatelessWidget {
   final String storeName;
@@ -32,7 +35,7 @@ class StoreDetailsPage extends StatelessWidget {
           IconButton(
             icon: Icon(Icons.share),
             onPressed: () {
-              // Handle share action
+              _shareStoreDetails();
             },
           ),
           IconButton(
@@ -137,6 +140,10 @@ class StoreDetailsPage extends StatelessWidget {
     );
   }
 
+  void _shareStoreDetails() {
+    Share.share('Check out this store: $storeName, located at $storeLocation. They offer great deals on $storeType.');
+  }
+
   Widget _buildPromoDeals(BuildContext context) {
     return GridView.builder(
       shrinkWrap: true,
@@ -164,66 +171,70 @@ class StoreDetailsPage extends StatelessWidget {
               productName: deal['name']!,
               productImage: deal['image']!,
               productPrice: deal['price']!,
-              productDescription: 'For reference only: An image of fresh ${deal['name']}', // Add more details if needed
+              productDescription: 'For reference only: An image of fresh ${deal['name']}',
             ),
           ),
         );
       },
-      child: Container(
-        decoration: BoxDecoration(
-          color: AppColors.white,
-          borderRadius: BorderRadius.circular(16.0),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.3),
-              spreadRadius: 1,
-              blurRadius: 2,
-              offset: Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              height: 100.0,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(16.0),
-                  topRight: Radius.circular(16.0),
+      child: Consumer<ThemeProvider>(
+        builder: (context, themeProvider, child) {
+          return Container(
+            decoration: BoxDecoration(
+              color: AppColors.white,
+              borderRadius: BorderRadius.circular(16.0),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.3),
+                  spreadRadius: 1,
+                  blurRadius: 2,
+                  offset: Offset(0, 2),
                 ),
-                image: DecorationImage(
-                  image: AssetImage(deal['image']!),
-                  fit: BoxFit.cover,
-                ),
-              ),
+              ],
             ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    deal['name']!,
-                    style: TextStyle(
-                      fontSize: 16.0,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.darkBlue,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  height: 100.0,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(16.0),
+                      topRight: Radius.circular(16.0),
+                    ),
+                    image: DecorationImage(
+                      image: AssetImage(deal['image']!),
+                      fit: BoxFit.cover,
                     ),
                   ),
-                  SizedBox(height: 4.0),
-                  Text(
-                    deal['price']!,
-                    style: TextStyle(
-                      fontSize: 14.0,
-                      color: AppColors.grey,
-                    ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        deal['name']!,
+                        style: TextStyle(
+                          fontSize: 16.0,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.darkBlue,
+                        ),
+                      ),
+                      SizedBox(height: 4.0),
+                      Text(
+                        deal['price']!,
+                        style: TextStyle(
+                          fontSize: 14.0,
+                          color: AppColors.grey,
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }

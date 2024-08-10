@@ -5,9 +5,6 @@ import 'package:image_picker/image_picker.dart';
 import '../provider/user_provider.dart';
 import '../provider/theme_provider.dart';
 import '../utils/colors.dart';
-import 'home_page.dart'; // Replace with your actual import
-import 'order_tracking_page.dart'; // Replace with your actual import
-import './favourite_retailer.dart'; // Replace with your actual import
 //import 'become_retailer_page.dart'; // Replace with your actual import
 
 class ProfilePage extends StatefulWidget {
@@ -60,12 +57,13 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
-  Future<void> _showEditDialog({required String title, required TextEditingController controller, required Function(String) onSave}) async {
+ Future<void> _showEditDialog({required String title, required TextEditingController controller, required Function(String) onSave}) async {
+    controller.text = title == 'Name' ? context.read<UserProvider>().userName : '';
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text(title),
+          title: Text('Update your $title'),
           content: Container(
             width: MediaQuery.of(context).size.width * 0.7, // Reduced width
             height: 100, // Reduced height

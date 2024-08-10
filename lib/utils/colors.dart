@@ -8,4 +8,3 @@ class AppColors {
   static const Color grey = Color(0xFFB0B0B0);
   static const Color darkThemePrimary = Color(0xFF0A0027); // New color
 }
-
