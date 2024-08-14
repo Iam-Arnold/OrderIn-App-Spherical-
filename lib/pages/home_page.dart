@@ -19,6 +19,7 @@ import './phone_reg_page.dart';
 import './contact_selection_page.dart';
 import '../components/home_card_slider.dart';
 import './profile_page.dart';
+import '../components/lazy_loader_cards.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -63,12 +64,12 @@ class _HomePageState extends State<HomePage> {
           Padding(
             padding: const EdgeInsets.only(right: 16.0),
             child: GestureDetector(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => ProfilePage()),
-              );
-            },
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => ProfilePage()),
+                );
+              },
               child: CircleAvatar(
                 backgroundImage: NetworkImage('https://example.com/default-profile.png'), // Default image
                 child: Consumer<UserProvider>(
@@ -144,56 +145,6 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildHeaderCard(BuildContext context) {
-    return Card(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16.0),
-      ),
-      elevation: 2.0, // Reduced shadow
-      child: Container(
-        height: 150.0,
-        decoration: BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage('assets/cargoplane.jpg'), // Adjust the path as needed
-            fit: BoxFit.cover,
-          ),
-          borderRadius: BorderRadius.circular(16.0),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Row(
-            children: [
-              Expanded(
-                flex: 3,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Ordering Goods Overseas',
-                      style: TextStyle(
-                        fontSize: 24.0,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.white,
-                      ),
-                    ),
-                    SizedBox(height: 8.0),
-                    Text(
-                      'See how you can find and order products from abroad with ease.',
-                      style: TextStyle(
-                        fontSize: 16.0,
-                        color: AppColors.white.withOpacity(0.8),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
   Widget _buildCoreValuesSection() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -227,95 +178,100 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildCategorySection(String title, BuildContext context) {
-    if (!retailersFutures.containsKey(title)) {
-      retailersFutures[title] = apiService.fetchRetailers(title, limit: 10);
-    }
+Widget _buildCategorySection(String title, BuildContext context) {
+  if (!retailersFutures.containsKey(title)) {
+    retailersFutures[title] = apiService.fetchRetailers(title, limit: 10);
+  }
 
-    bool isDarkTheme = Theme.of(context).brightness == Brightness.dark;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Consumer<ThemeProvider>(
-              builder: (context, ThemeProvider, child){
-              return (
-                Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: 18.0,
-                    fontWeight: FontWeight.bold,
-                    color: ThemeProvider.switchThemeIcon() ? AppColors.darkBlue: AppColors.white,
-                  ),
-                )
-              );
-              }
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: 18.0,
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
             ),
-            GestureDetector(
-              onTap: () {
-                // Navigate to AllRetailersPage when See More is clicked
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => FutureBuilder<List<Retailer>>(
-                      future: retailersFutures[title],
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState == ConnectionState.waiting) {
-                          return Center(child: CircularProgressIndicator());
-                        } else if (snapshot.hasError) {
-                          return Center(child: Text('Error: ${snapshot.error}'));
-                        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                          return Center(child: Text('No retailers available'));
-                        } else {
-                          List<Retailer> retailers = snapshot.data!;
-                          return AllRetailersPage(category: title, retailers: retailers);
-                        }
-                      },
-                    ),
+          ),
+          GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => FutureBuilder<List<Retailer>>(
+                    future: retailersFutures[title],
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return Center(child: CircularProgressIndicator());
+                      } else if (snapshot.hasError) {
+                        return Center(child: Text('Error: ${snapshot.error}'));
+                      } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                        return Center(child: Text('No retailers available'));
+                      } else {
+                        List<Retailer> retailers = snapshot.data!;
+                        return AllRetailersPage(category: title, retailers: retailers);
+                      }
+                    },
                   ),
-                );
-              },
-              child: Consumer<ThemeProvider>(
-                builder: (context, themeProvider, child) {
-                  return (Text(
-                'See More',
-                style: TextStyle(
-                  fontSize: 14.0,
-                  fontWeight: FontWeight.bold,
-                  color: themeProvider.switchThemeIcon()? AppColors.ultramarineBlue : AppColors.grey,
                 ),
-              )
               );
-                }
+            },
+            child: Text(
+              'See More',
+              style: TextStyle(
+                fontSize: 14.0,
+                fontWeight: FontWeight.bold,
+                color: Colors.blue,
               ),
             ),
-          ],
+          ),
+        ],
+      ),
+      SizedBox(height: 8.0),
+      FutureBuilder<List<Retailer>>(
+        future: retailersFutures[title],
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: List.generate(5, (index) => LazyLoaderCard()), // Displaying 5 loading cards
+              ),
+            );
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return Center(child: Text('No retailers available'));
+          } else {
+            List<Retailer> retailers = snapshot.data!;
+            return SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: retailers.map((retailer) => RetailerCard(retailer: retailer)).toList(),
+              ),
+            );
+          }
+        },
+      ),
+    ],
+  );
+}
+
+  Widget _buildPlaceholderCard() {
+    return Padding(
+      padding: const EdgeInsets.only(right: 8.0),
+      child: Container(
+        width: 150.0,
+        height: 200.0,
+        decoration: BoxDecoration(
+          color: Colors.grey.shade300,
+          borderRadius: BorderRadius.circular(16.0),
         ),
-        SizedBox(height: 8.0),
-        FutureBuilder<List<Retailer>>(
-          future: retailersFutures[title],
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return Center(child: CircularProgressIndicator());
-            } else if (snapshot.hasError) {
-              return Center(child: Text('Error: ${snapshot.error}'));
-            } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-              return Center(child: Text('No retailers available'));
-            } else {
-              List<Retailer> retailers = snapshot.data!;
-              return SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: retailers.map((retailer) => RetailerCard(retailer: retailer)).toList(),
-                ),
-              );
-            }
-          },
-        ),
-      ],
+      ),
     );
   }
 }

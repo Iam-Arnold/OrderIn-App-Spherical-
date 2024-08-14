@@ -14,18 +14,36 @@ class PrimaryButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       width: double.infinity,
-      child: ElevatedButton(
-        onPressed: onPressed,
-        child: Text(
-          text,
-          style: TextStyle(
-            fontSize: 18.0,
-            fontWeight: FontWeight.bold,
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              AppColors.ultramarineBlue,
+              Colors.lightBlue,
+            ],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
           ),
+          borderRadius: BorderRadius.circular(30.0), // Adjust the border radius if needed
         ),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.ultramarineBlue,
-          padding: EdgeInsets.symmetric(vertical: 16.0),
+        child: ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            padding: EdgeInsets.symmetric(vertical: 16.0),
+            backgroundColor: Colors.transparent,
+            shadowColor: Colors.transparent, // Remove the button's shadow color if needed
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(30.0), // Ensure the button has the same radius as the gradient
+            ),
+          ),
+          onPressed: onPressed,
+          child: Text(
+            text,
+            style: TextStyle(
+              fontSize: 18.0,
+              fontWeight: FontWeight.bold,
+              color: Colors.white, // Ensure the text color contrasts well with the gradient
+            ),
+          ),
         ),
       ),
     );
