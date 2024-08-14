@@ -5,7 +5,6 @@ import 'package:image_picker/image_picker.dart';
 import '../provider/user_provider.dart';
 import '../provider/theme_provider.dart';
 import '../utils/colors.dart';
-//import 'become_retailer_page.dart'; // Replace with your actual import
 
 class ProfilePage extends StatefulWidget {
   @override
@@ -57,87 +56,157 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
- Future<void> _showEditDialog({required String title, required TextEditingController controller, required Function(String) onSave}) async {
-    controller.text = title == 'Name' ? context.read<UserProvider>().userName : '';
+  Future<void> _showEditDialog({required String title, required TextEditingController controller, required Function(String) onSave}) async {
     showDialog(
       context: context,
       builder: (context) {
-        return AlertDialog(
-          title: Text('Update your $title'),
-          content: Container(
-            width: MediaQuery.of(context).size.width * 0.7, // Reduced width
-            height: 100, // Reduced height
-            child: Column(
-              children: [
-                TextField(
-                  controller: controller,
-                  decoration: InputDecoration(
-                    labelText: title,
-                    hintText: 'Enter $title',
-                  ),
-                ),
-              ],
-            ),
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () {
-                onSave(controller.text);
-                Navigator.of(context).pop();
-              },
-              child: Text('Save'),
-            ),
-          ],
+          elevation: 0,
+          backgroundColor: Colors.transparent,
+          child: Stack(
+            children: [
+              Container(
+                padding: EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [AppColors.lightBlue, AppColors.ultramarineBlue],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'Update your $title',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    SizedBox(height: 16),
+                    TextField(
+                      controller: controller,
+                      decoration: InputDecoration(
+                        hintText: 'Enter $title',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 20),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        TextButton(
+                          onPressed: () => Navigator.of(context).pop(),
+                          child: Text('Cancel', style: TextStyle(color: Colors.white)),
+                        ),
+                        SizedBox(width: 10),
+                        ElevatedButton(
+                          onPressed: () {
+                            onSave(controller.text);
+                            Navigator.of(context).pop();
+                          },
+                          child: Text('Save'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.ultramarineBlue,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         );
       },
     );
   }
 
-  Widget _buildSlidingCard({
-    required String title,
-    required String imagePath,
+  Widget _buildEditableField({
+    required String label,
+    required TextEditingController controller,
+    required Function(String) onSave,
   }) {
-    return Container(
-      margin: EdgeInsets.symmetric(horizontal: 10.0),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12.0),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black26,
-            blurRadius: 4,
-            offset: Offset(2, 2),
+    return GestureDetector(
+      onTap: () {
+        _showEditDialog(title: label, controller: controller, onSave: onSave);
+      },
+      child: Container(
+        margin: EdgeInsets.symmetric(vertical: 10),
+        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [AppColors.lightBlue, AppColors.ultramarineBlue],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
           ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(12.0),
-        child: Stack(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Image.asset(
-              imagePath,
-              fit: BoxFit.cover,
-              width: double.infinity,
-              height: double.infinity,
+            Text(
+              label,
+              style: TextStyle(fontSize: 16, color: Colors.white),
             ),
-            Container(
-              decoration: BoxDecoration(
-                color: AppColors.darkBlue.withOpacity(0.6),
-              ),
-            ),
-            Center(
+            Flexible(
               child: Text(
-                title,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
+                controller.text.isEmpty ? 'Tap to add $label' : controller.text,
+                style: TextStyle(fontSize: 16, color: Colors.white),
+                textAlign: TextAlign.end,
+                overflow: TextOverflow.ellipsis,
               ),
             ),
+            Icon(Icons.create, color: Colors.white), // Changed icon to a pencil
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildProfileOption({
+    required String title,
+    required IconData icon,
+    required Function() onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        margin: EdgeInsets.symmetric(vertical: 10),
+        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [AppColors.lightBlue, AppColors.ultramarineBlue],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              children: [
+                Icon(icon, color: Colors.white),
+                SizedBox(width: 12),
+                Text(
+                  title,
+                  style: TextStyle(fontSize: 16, color: Colors.white),
+                ),
+              ],
+            ),
+            Icon(Icons.arrow_forward_ios, color: Colors.white),
           ],
         ),
       ),
@@ -148,27 +217,27 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget build(BuildContext context) {
     return Consumer2<UserProvider, ThemeProvider>(
       builder: (context, userProvider, themeProvider, child) {
-        bool isDarkTheme = themeProvider.switchThemeIcon();
         return Scaffold(
           appBar: AppBar(
-            title: Text('Profile'),
+            title: Text('Profile', style: TextStyle(color: Colors.white)),
+            backgroundColor: AppColors.ultramarineBlue,
+            elevation: 0,
+            iconTheme: IconThemeData(color: Colors.white),
           ),
-          body: Padding(
+          body: SingleChildScrollView(
             padding: const EdgeInsets.all(16.0),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Stack(
                   children: [
                     CircleAvatar(
-                      radius: 50,
+                      radius: 60,
                       backgroundImage: userProvider.userProfilePicture.isNotEmpty
                           ? NetworkImage(userProvider.userProfilePicture)
                           : null,
                       child: userProvider.userProfilePicture.isEmpty
-                          ? Icon(
-                              Icons.person,
-                              size: 50,
-                            )
+                          ? Icon(Icons.person, size: 60, color: Colors.white)
                           : null,
                     ),
                     Positioned(
@@ -178,82 +247,59 @@ class _ProfilePageState extends State<ProfilePage> {
                         width: 40,
                         height: 40,
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          gradient: LinearGradient(
+                            colors: [AppColors.lightBlue, AppColors.ultramarineBlue],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
                           shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black26,
-                              blurRadius: 4,
-                              offset: Offset(2, 2),
-                            ),
-                          ],
                         ),
                         child: IconButton(
-                          icon: Icon(Icons.edit, color: AppColors.ultramarineBlue),
+                          icon: Icon(Icons.camera_alt, color: Colors.white),
                           onPressed: () => _pickImage(userProvider),
                         ),
                       ),
                     ),
                   ],
                 ),
-                SizedBox(height: 16),
-                ListTile(
-                  title: Text('Name', style: TextStyle(color: AppColors.grey)),
-                  subtitle: Text(userProvider.userName, style: TextStyle(color: AppColors.lightBlue)),
-                  trailing: IconButton(
-                    icon: Icon(Icons.edit, color: AppColors.ultramarineBlue),
-                    onPressed: () => _showEditDialog(
-                      title: 'Name',
-                      controller: _nameController,
-                      onSave: (value) async {
-                        await userProvider.updateUserName(value);
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Name updated')));
-                      },
-                    ),
-                  ),
+                SizedBox(height: 20),
+                _buildEditableField(
+                  label: 'Name',
+                  controller: _nameController,
+                  onSave: (value) async {
+                    await userProvider.updateUserName(value);
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Name updated')));
+                  },
                 ),
-                ListTile(
-                  title: Text('Email', style: TextStyle(color: AppColors.grey)),
-                  subtitle: Text(userProvider.userEmail, style: TextStyle(color: AppColors.lightBlue)),
+                _buildEditableField(
+                  label: 'Phone Number',
+                  controller: _phoneController,
+                  onSave: (value) async {
+                    await userProvider.updatePhoneNumber(value);
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Phone number updated')));
+                  },
                 ),
-                ListTile(
-                  title: Text('Phone Number', style: TextStyle(color: AppColors.grey)),
-                  subtitle: Text(userProvider.userPhoneNumber.isNotEmpty ? userProvider.userPhoneNumber : 'Add phone number', style: TextStyle(color: AppColors.lightBlue)),
-                  trailing: IconButton(
-                    icon: Icon(Icons.edit, color: AppColors.ultramarineBlue),
-                    onPressed: () => _showEditDialog(
-                      title: 'Phone Number',
-                      controller: _phoneController,
-                      onSave: (value) async {
-                        await userProvider.updatePhoneNumber(value);
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Phone number updated')));
-                      },
-                    ),
-                  ),
+                SizedBox(height: 30), // Space added between the fields and rest of the options
+                _buildProfileOption(
+                  title: 'Settings',
+                  icon: Icons.settings,
+                  onTap: () {
+                    // Handle settings navigation
+                  },
                 ),
-                SizedBox(height: 24),
-                Expanded(
-                  child: PageView(
-                    controller: _pageController,
-                    children: [
-                      _buildSlidingCard(
-                        title: 'Quality',
-                        imagePath: 'assets/quality.jpg',
-                      ),
-                      _buildSlidingCard(
-                        title: 'Affordable',
-                        imagePath: 'assets/affordable.jpg',
-                      ),
-                      _buildSlidingCard(
-                        title: 'Trust',
-                        imagePath: 'assets/trust.jpg',
-                      ),
-                      _buildSlidingCard(
-                        title: 'Transparent',
-                        imagePath: 'assets/transparent.jpg',
-                      ),
-                    ],
-                  ),
+                _buildProfileOption(
+                  title: 'Privacy Policy',
+                  icon: Icons.privacy_tip,
+                  onTap: () {
+                    // Handle privacy policy navigation
+                  },
+                ),
+                _buildProfileOption(
+                  title: 'Logout',
+                  icon: Icons.logout,
+                  onTap: () {
+                    // Handle logout
+                  },
                 ),
               ],
             ),

@@ -7,6 +7,7 @@ class LazyLoaderCard extends StatefulWidget {
 
 class _LazyLoaderCardState extends State<LazyLoaderCard> with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
+  late Animation<Alignment> _alignmentAnimation;
   late Animation<Color?> _colorAnimation;
 
   @override
@@ -14,13 +15,18 @@ class _LazyLoaderCardState extends State<LazyLoaderCard> with SingleTickerProvid
     super.initState();
 
     _animationController = AnimationController(
-      duration: Duration(seconds: 2),
+      duration: Duration(milliseconds: 500), // Adjust duration for smoother animation
       vsync: this,
-    )..repeat(reverse: true); // Repeat animation indefinitely
+    )..repeat(reverse: true);
+
+    _alignmentAnimation = Tween<Alignment>(
+      begin: Alignment.topLeft,
+      end: Alignment.bottomRight,
+    ).animate(_animationController);
 
     _colorAnimation = ColorTween(
-      begin: Colors.grey[300],
-      end: Colors.grey[200],
+      begin: Colors.grey[400],
+      end: Colors.grey[300],
     ).animate(_animationController);
   }
 
@@ -33,7 +39,7 @@ class _LazyLoaderCardState extends State<LazyLoaderCard> with SingleTickerProvid
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
-      animation: _colorAnimation,
+      animation: _animationController,
       builder: (context, child) {
         return Card(
           shape: RoundedRectangleBorder(
@@ -45,8 +51,14 @@ class _LazyLoaderCardState extends State<LazyLoaderCard> with SingleTickerProvid
             height: 200.0,
             padding: EdgeInsets.all(16.0),
             decoration: BoxDecoration(
-              color: _colorAnimation.value,
               borderRadius: BorderRadius.circular(16.0),
+              gradient: LinearGradient(
+                begin: _alignmentAnimation.value,
+                end: _alignmentAnimation.value == Alignment.topLeft 
+                      ? Alignment.bottomRight 
+                      : Alignment.topLeft,
+                colors: [_colorAnimation.value!, Colors.grey[400]!],
+              ),
             ),
           ),
         );

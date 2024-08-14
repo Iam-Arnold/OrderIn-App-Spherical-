@@ -12,7 +12,7 @@ class OrderTrackingPage extends StatelessWidget {
         title: 'Track Orders',
         actions: [
           IconButton(
-            icon: Icon(Icons.search),
+            icon: Icon(Icons.search, color: Colors.white),
             onPressed: () {
               // Handle search action
             },
@@ -28,34 +28,69 @@ class OrderTrackingPage extends StatelessWidget {
           // Add more list tiles for other orders
         ],
       ),
-      //bottomNavigationBar: BottomNavigation(), 
     );
   }
 
-  Widget _buildOrderTile(BuildContext context, String orderNumber, String status, DateTime date, Color statusColor) {
-    return Consumer<ThemeProvider>(
-      builder: (context, themeProvider, child) {
-        return Card(
-      color: themeProvider.switchThemeIcon() ? AppColors.white : AppColors.darkBlue,    
-      margin: const EdgeInsets.symmetric(vertical: 8.0),
-      child: ListTile(
-        leading: Icon(Icons.check_circle, color: statusColor),
-        title: Text(orderNumber, style: TextStyle(fontWeight: FontWeight.bold, color: const Color.fromARGB(255, 247, 36, 36))),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Status: $status', style: TextStyle(color: statusColor)),
-            SizedBox(height: 4.0),
-            Text('Date: ${date.toLocal()}'.split(' ')[0], style: TextStyle(color: themeProvider.switchThemeIcon() ? AppColors.darkBlue.withOpacity(0.7) : AppColors.white.withOpacity(0.5))),
+Widget _buildOrderTile(BuildContext context, String orderNumber, String status, DateTime date, Color statusColor) {
+  return Consumer<ThemeProvider>(
+    builder: (context, themeProvider, child) {
+      return Container(
+        margin: const EdgeInsets.symmetric(vertical: 8.0),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20.0),
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              AppColors.ultramarineBlue, // Light blue color
+              AppColors.darkBlue,  // Dark blue color
+            ],
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              spreadRadius: 2,
+              blurRadius: 8,
+              offset: Offset(0, 2), // changes position of shadow
+            ),
           ],
         ),
-        trailing: Icon(Icons.arrow_forward),
-        onTap: () {
-          // Navigate to order details page
-        },
-      ),
-    );
-      }
-    );  
-  }
+        child: ListTile(
+          leading: Icon(Icons.check_circle_outline, color: statusColor, size: 32),
+          title: Text(
+            orderNumber,
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+              fontSize: 18,
+            ),
+          ),
+          subtitle: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Status: $status',
+                style: TextStyle(color: statusColor, fontSize: 16),
+              ),
+              SizedBox(height: 4.0),
+              Text(
+                'Date: ${date.toLocal()}',
+                style: TextStyle(
+                  color: themeProvider.switchThemeIcon()
+                      ? AppColors.darkBlue.withOpacity(0.7)
+                      : AppColors.white.withOpacity(0.7),
+                ),
+              ),
+            ],
+          ),
+          trailing: Icon(Icons.arrow_forward_ios, color: Colors.white),
+          onTap: () {
+            // Navigate to order details page
+          },
+        ),
+      );
+    }
+  );  
+}
+
 }
