@@ -6,6 +6,7 @@ import './store_details_page.dart';
 import '../services/api/product_mock_api.dart';
 import '../models/products.dart';
 import 'package:provider/provider.dart';
+import './widgets/search_field.dart'; // Import the new SearchField component
 
 class AllRetailersPage extends StatefulWidget {
   final String category;
@@ -60,7 +61,9 @@ class _AllRetailersPageState extends State<AllRetailersPage> {
         children: [
           Padding(
             padding: const EdgeInsets.all(16.0),
-            child: _buildSearchField(),
+            child: SearchField(
+              controller: _searchController, // Use the SearchField component
+            ),
           ),
           Expanded(
             child: ListView.builder(
@@ -176,25 +179,6 @@ class _AllRetailersPageState extends State<AllRetailersPage> {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildSearchField() {
-    return TextField(
-      controller: _searchController,
-      decoration: InputDecoration(
-        hintText: 'Search shops...',
-        hintStyle: TextStyle(color: AppColors.lightBlue),
-        enabledBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: AppColors.lightBlue),
-          borderRadius: BorderRadius.circular(8.0),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: AppColors.ultramarineBlue),
-          borderRadius: BorderRadius.circular(8.0),
-        ),
-        prefixIcon: Icon(Icons.search, color: AppColors.lightBlue),
       ),
     );
   }

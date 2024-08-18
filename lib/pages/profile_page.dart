@@ -5,6 +5,7 @@ import 'package:image_picker/image_picker.dart';
 import '../provider/user_provider.dart';
 import '../provider/theme_provider.dart';
 import '../utils/colors.dart';
+import '../components/heart_beat_loader.dart';
 
 class ProfilePage extends StatefulWidget {
   @override
@@ -13,8 +14,8 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   final ImagePicker _picker = ImagePicker();
-  TextEditingController _nameController = TextEditingController();
-  TextEditingController _phoneController = TextEditingController();
+  late TextEditingController _nameController;
+  late TextEditingController _phoneController;
   late PageController _pageController;
   late Timer _timer;
   int _currentPage = 0;
@@ -22,9 +23,16 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   void initState() {
     super.initState();
-    UserProvider userProvider = Provider.of<UserProvider>(context, listen: false);
-    _nameController.text = userProvider.userName;
-    _phoneController.text = userProvider.userPhoneNumber;
+
+    _nameController = TextEditingController();
+    _phoneController = TextEditingController();
+
+    // Load user data from provider
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      UserProvider userProvider = Provider.of<UserProvider>(context, listen: false);
+      _nameController.text = userProvider.userName;
+      _phoneController.text = userProvider.userPhoneNumber;
+    });
 
     _pageController = PageController(initialPage: 0);
     _timer = Timer.periodic(Duration(seconds: 3), (Timer timer) {
@@ -46,6 +54,8 @@ class _ProfilePageState extends State<ProfilePage> {
   void dispose() {
     _timer.cancel();
     _pageController.dispose();
+    _nameController.dispose();
+    _phoneController.dispose();
     super.dispose();
   }
 
@@ -56,7 +66,11 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
-  Future<void> _showEditDialog({required String title, required TextEditingController controller, required Function(String) onSave}) async {
+  Future<void> _showEditDialog({
+    required String title,
+    required TextEditingController controller,
+    required Function(String) onSave,
+  }) async {
     showDialog(
       context: context,
       builder: (context) {
@@ -133,7 +147,7 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  Widget _buildEditableField({
+Widget _buildEditableField({
     required String label,
     required TextEditingController controller,
     required Function(String) onSave,
@@ -162,7 +176,7 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
             Flexible(
               child: Text(
-                controller.text.isEmpty ? 'Tap to add $label' : controller.text,
+                controller.text.isNotEmpty ? controller.text : _nameController.text,
                 style: TextStyle(fontSize: 16, color: Colors.white),
                 textAlign: TextAlign.end,
                 overflow: TextOverflow.ellipsis,
@@ -213,6 +227,35 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
+  void _confirmLogout(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Confirm Logout'),
+        content: Text('Are you sure you want to logout?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text('No'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(true);
+            },
+            child: Text('Yes'),
+          ),
+        ],
+      ),
+    ).then((confirmed) {
+      if (confirmed) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => HeartbeatLoader()),
+        );
+        Provider.of<UserProvider>(context, listen: false).logout();
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Consumer2<UserProvider, ThemeProvider>(
@@ -220,7 +263,6 @@ class _ProfilePageState extends State<ProfilePage> {
         return Scaffold(
           appBar: AppBar(
             title: Text('Profile', style: TextStyle(color: Colors.white)),
-            backgroundColor: AppColors.ultramarineBlue,
             elevation: 0,
             iconTheme: IconThemeData(color: Colors.white),
           ),
@@ -229,6 +271,7 @@ class _ProfilePageState extends State<ProfilePage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
+                // Profile Picture Section
                 Stack(
                   children: [
                     CircleAvatar(
@@ -248,7 +291,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         height: 40,
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
-                            colors: [AppColors.lightBlue, AppColors.ultramarineBlue],
+                            colors: [AppColors.darkThemePrimary, AppColors.ultramarineBlue],
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                           ),
@@ -262,9 +305,25 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                   ],
                 ),
+
+                // User Name and Phone Number Section
+                SizedBox(height: 16),
+                Text(
+                  userProvider.userName.isNotEmpty ? userProvider.userName : 'No name available',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: themeProvider.switchThemeIcon() ? AppColors.darkBlue : AppColors.white),
+                ),
+                SizedBox(height: 8),
+                Text(
+                  userProvider.userPhoneNumber.isNotEmpty
+                      ? userProvider.userPhoneNumber
+                      : 'No phone number available',
+                  style: TextStyle(fontSize: 16, color: themeProvider.switchThemeIcon() ? AppColors.darkBlue : Colors.white70),
+                ),
+
+                // Editable Fields and Profile Options
                 SizedBox(height: 20),
                 _buildEditableField(
-                  label: 'Name',
+                  label: 'New name',
                   controller: _nameController,
                   onSave: (value) async {
                     await userProvider.updateUserName(value);
@@ -272,14 +331,15 @@ class _ProfilePageState extends State<ProfilePage> {
                   },
                 ),
                 _buildEditableField(
-                  label: 'Phone Number',
+                  label: 'New phone',
                   controller: _phoneController,
                   onSave: (value) async {
                     await userProvider.updatePhoneNumber(value);
                     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Phone number updated')));
                   },
                 ),
-                SizedBox(height: 30), // Space added between the fields and rest of the options
+
+                SizedBox(height: 30),
                 _buildProfileOption(
                   title: 'Settings',
                   icon: Icons.settings,
@@ -295,11 +355,16 @@ class _ProfilePageState extends State<ProfilePage> {
                   },
                 ),
                 _buildProfileOption(
+                  title: 'Terms of Service',
+                  icon: Icons.article,
+                  onTap: () {
+                    // Handle terms of service navigation
+                  },
+                ),
+                _buildProfileOption(
                   title: 'Logout',
                   icon: Icons.logout,
-                  onTap: () {
-                    // Handle logout
-                  },
+                  onTap: () => _confirmLogout(context),
                 ),
               ],
             ),

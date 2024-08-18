@@ -57,7 +57,7 @@ class StoreDetailsPage extends StatelessWidget {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(16.0),
                   image: DecorationImage(
-                    image: AssetImage(placeholderImage),
+                    image: NetworkImage(placeholderImage),
                     fit: BoxFit.cover,
                   ),
                 ),
@@ -111,7 +111,7 @@ class StoreDetailsPage extends StatelessWidget {
                     ),
                   ),
                   Spacer(),
-                  Icon(Icons.attach_money, color: AppColors.grey),
+                  //Icon(Icons.attach_money, color: AppColors.grey),
                   SizedBox(width: 4.0),
                   Text(
                     deliveryFee,
@@ -202,7 +202,7 @@ class StoreDetailsPage extends StatelessWidget {
                       topRight: Radius.circular(16.0),
                     ),
                     image: DecorationImage(
-                      image: AssetImage(deal['image']!),
+                      image: NetworkImage(deal['image']!),
                       fit: BoxFit.cover,
                     ),
                   ),

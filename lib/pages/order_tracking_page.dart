@@ -42,8 +42,8 @@ Widget _buildOrderTile(BuildContext context, String orderNumber, String status, 
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              AppColors.ultramarineBlue, // Light blue color
-              AppColors.darkBlue,  // Dark blue color
+              AppColors.ultramarineBlue, 
+              statusColor,   
             ],
           ),
           boxShadow: [
@@ -76,9 +76,7 @@ Widget _buildOrderTile(BuildContext context, String orderNumber, String status, 
               Text(
                 'Date: ${date.toLocal()}',
                 style: TextStyle(
-                  color: themeProvider.switchThemeIcon()
-                      ? AppColors.darkBlue.withOpacity(0.7)
-                      : AppColors.white.withOpacity(0.7),
+                  color: AppColors.white.withOpacity(0.7),
                 ),
               ),
             ],

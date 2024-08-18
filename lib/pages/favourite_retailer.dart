@@ -5,6 +5,7 @@ import '../utils/colors.dart';
 import '../models/retailer.dart';
 import '../components/top_navbar.dart';
 import '../services/api/retailer_mock_api.dart';
+import './widgets/search_field.dart';
 import '../components/bottom_nav.dart';
 
 class FavoriteRetailersPage extends StatefulWidget {
@@ -15,11 +16,31 @@ class FavoriteRetailersPage extends StatefulWidget {
 class _FavoriteRetailersPageState extends State<FavoriteRetailersPage> {
   final MockApiService apiService = MockApiService();
   late Future<List<Retailer>> favoriteRetailersFuture;
+  List<Retailer> _allFavoriteRetailers = [];
+  List<Retailer> _filteredFavoriteRetailers = [];
+  TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     favoriteRetailersFuture = apiService.fetchRetailers('Favorite');
+    _searchController.addListener(_filterRetailers);
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void _filterRetailers() {
+    String query = _searchController.text.toLowerCase();
+    setState(() {
+      _filteredFavoriteRetailers = _allFavoriteRetailers.where((retailer) {
+        return retailer.storeName.toLowerCase().contains(query) ||
+               retailer.retailerType.toLowerCase().contains(query);
+      }).toList();
+    });
   }
 
   @override
@@ -31,35 +52,48 @@ class _FavoriteRetailersPageState extends State<FavoriteRetailersPage> {
           IconButton(
             icon: Icon(Icons.search),
             onPressed: () {
-              // Handle search action
+              // Handle search action if needed
             },
           ),
         ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: FutureBuilder<List<Retailer>>(
-          future: favoriteRetailersFuture,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return Center(child: CircularProgressIndicator());
-            } else if (snapshot.hasError) {
-              return Center(child: Text('Error: ${snapshot.error}'));
-            } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-              return Center(child: Text('No favorite retailers available'));
-            } else {
-              List<Retailer> favoriteRetailers = snapshot.data!;
-              return ListView.builder(
-                itemCount: favoriteRetailers.length,
-                itemBuilder: (context, index) {
-                  return _buildRetailerCard(context, favoriteRetailers[index]);
+        child: Column(
+          children: [
+            SearchField(
+              controller: _searchController,
+              hintText: 'Search favorite retailers...',
+            ),
+            Expanded(
+              child: FutureBuilder<List<Retailer>>(
+                future: favoriteRetailersFuture,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(child: CircularProgressIndicator());
+                  } else if (snapshot.hasError) {
+                    return Center(child: Text('Error: ${snapshot.error}'));
+                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                    return Center(child: Text('No favorite retailers available'));
+                  } else {
+                    _allFavoriteRetailers = snapshot.data!;
+                    _filteredFavoriteRetailers = _filteredFavoriteRetailers.isEmpty
+                        ? _allFavoriteRetailers
+                        : _filteredFavoriteRetailers;
+                    return ListView.builder(
+                      itemCount: _filteredFavoriteRetailers.length,
+                      itemBuilder: (context, index) {
+                        return _buildRetailerCard(context, _filteredFavoriteRetailers[index]);
+                      },
+                    );
+                  }
                 },
-              );
-            }
-          },
+              ),
+            ),
+          ],
         ),
       ),
-      //bottomNavigationBar: BottomNavigation(),
+      // bottomNavigationBar: BottomNavigation(),
     );
   }
 

@@ -31,8 +31,8 @@ class MockApiService {
         '$category Store $index',
         category,
         '${(index + 1) * 2} min',
-        'P${(index + 1) * 5}',
-        'assets/images/${category.toLowerCase().replaceAll(' ', '_')}_placeholder.jpg',
+        'TZS${(index + 1) * 5}',
+        'https://t3.ftcdn.net/jpg/04/65/46/52/240_F_465465254_1pN9MGrA831idD6zIBL7q8rnZZpUCQTy.jpg',
       );
     });
     return allRetailers.take(limit).toList();

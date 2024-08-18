@@ -31,7 +31,7 @@ class RetailerCard extends StatelessWidget {
               deliveryTime: retailer.time,
               deliveryFee: retailer.price,
               promoDeals: _convertProductsToMap(products),
-              placeholderImage: retailer.placeholderImageAsset ?? 'assets/orderinLogo.png',
+              placeholderImage: retailer.placeholderImageAsset ?? 'assets/orderinLogo.jpg',
             ),
           ),
         );
