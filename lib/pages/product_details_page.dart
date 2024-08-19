@@ -1,18 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../utils/colors.dart';
+import '../components/secondary_button.dart'; // Import the SecondaryButton
 import '../components/primary_button.dart';
 import '../pages/my_cart_page.dart'; 
 import '../models/cart_item.dart';
 import '../provider/theme_provider.dart';
+import '../provider/cart_provider.dart'; // Import the CartProvider
+import './order_tracking_page.dart';
 
 class ProductDetailsPage extends StatefulWidget {
   final String productName;
+  final String productId;
   final String productImage;
   final String productPrice;
   final String productDescription;
 
   ProductDetailsPage({
+    required this.productId, 
     required this.productName,
     required this.productImage,
     required this.productPrice,
@@ -42,19 +47,41 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<ThemeProvider>(
-      builder: (context, themeProvider, child) {
+    return Consumer2<ThemeProvider, CartProvider>(
+      builder: (context, themeProvider, cartProvider, child) {
         bool isDarkTheme = themeProvider.switchThemeIcon();
-        
+
         return Scaffold(
           appBar: AppBar(
             title: Text(widget.productName),
             actions: [
-              IconButton(
-                icon: Icon(Icons.shopping_cart),
-                onPressed: () {
-                  // Handle cart action
-                },
+              Stack(
+                children: [
+                  IconButton(
+                    icon: Icon(Icons.shopping_cart),
+                    onPressed: () {
+                      // Navigate to cart page
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => OrderTrackingPage(),
+                        ),
+                      );
+                    },
+                  ),
+                  if (cartProvider.items.isNotEmpty)
+                    Positioned(
+                      right: 0,
+                      child: CircleAvatar(
+                        radius: 10.0,
+                        backgroundColor: Colors.red,
+                        child: Text(
+                          cartProvider.items.length.toString(),
+                          style: TextStyle(fontSize: 12.0, color: Colors.white),
+                        ),
+                      ),
+                    ),
+                ],
               ),
             ],
           ),
@@ -164,12 +191,49 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                         ],
                       ),
                       SizedBox(height: 16.0),
-                      PrimaryButton(
+                      SecondaryButton(
                         text: 'Add to Cart',
                         onPressed: () {
+                          // Access the cart provider
+                          final cartProvider = Provider.of<CartProvider>(context, listen: false);
+
+                          // Add product to cart and check if it was successful
+                          bool addedSuccessfully = cartProvider.addItem(
+                                 CartItem(
+                                  productId: widget.productId, // Pass the productId
+                                  productName: widget.productName,
+                                  productImage: widget.productImage,
+                                  productPrice: widget.productPrice,
+                                  quantity: quantity,
+                                ),
+                          );
+
+                          if (!addedSuccessfully) {
+                            // Show message if item is already in the cart
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Item already added to cart'),
+                              ),
+                            );
+                          } else {
+                            // Show confirmation if item was successfully added
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('${widget.productName} added to cart'),
+                              ),
+                            );
+                          }
+                        },
+                        gradientColors: [Colors.deepOrange, Colors.yellow], // Deep yellow-orange gradient
+                      ),
+                      SizedBox(height: 16.0),
+                      PrimaryButton(
+                        text: 'Continue',
+                       onPressed: () {
                           // Simulate adding to cart (replace with actual logic)
                           List<CartItem> cartItems = [
                             CartItem(
+                              productId: widget.productId,
                               productName: widget.productName,
                               productImage: widget.productImage,
                               productPrice: widget.productPrice,

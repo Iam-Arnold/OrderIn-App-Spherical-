@@ -13,6 +13,7 @@ import './welcome/sign_up.dart';
 import './components/bottom_nav.dart';
 import './provider/user_provider.dart'; // Import the UserProvider
 import './provider/theme_provider.dart'; // Import the ThemeProvider
+import './provider/cart_provider.dart'; 
 import './pages/profile_page.dart';
 
 void main() async {
@@ -25,6 +26,7 @@ void main() async {
       providers: [
         ChangeNotifierProvider(create: (context) => UserProvider()),
         ChangeNotifierProvider(create: (context) => ThemeProvider()),
+        ChangeNotifierProvider(create: (context) => CartProvider()),
       ],
       child: OrderInApp(),
     ),

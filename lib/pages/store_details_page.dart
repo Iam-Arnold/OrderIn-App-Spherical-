@@ -156,6 +156,7 @@ class StoreDetailsPage extends StatelessWidget {
       ),
       itemCount: promoDeals.length,
       itemBuilder: (context, index) {
+        print('dealssss $promoDeals[index]');
         return _buildPromoDealCard(context, promoDeals[index]);
       },
     );
@@ -168,6 +169,7 @@ class StoreDetailsPage extends StatelessWidget {
           context,
           MaterialPageRoute(
             builder: (context) => ProductDetailsPage(
+              productId: deal['id']!,
               productName: deal['name']!,
               productImage: deal['image']!,
               productPrice: deal['price']!,

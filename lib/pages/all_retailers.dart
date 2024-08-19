@@ -186,6 +186,7 @@ class _AllRetailersPageState extends State<AllRetailersPage> {
   List<Map<String, String>> _convertProductsToMap(List<Product> products) {
     return products.map((product) {
       return {
+        'id': product.id,
         'name': product.name,
         'price': product.price.toString(),
         'image': product.imageUrl,
