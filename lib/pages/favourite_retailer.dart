@@ -45,9 +45,13 @@ class _FavoriteRetailersPageState extends State<FavoriteRetailersPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return Consumer<ThemeProvider>(
+     builder: (context, themeProvider, child) {
+     bool isDarkTheme = themeProvider.switchThemeIcon();
+     return Scaffold(
       appBar: CustomAppBar(
         title: 'Favorite Retailers',
+        color: isDarkTheme ? AppColors.ultramarineBlue : AppColors.white,
         actions: [
           IconButton(
             icon: Icon(Icons.search),
@@ -96,7 +100,8 @@ class _FavoriteRetailersPageState extends State<FavoriteRetailersPage> {
       // bottomNavigationBar: BottomNavigation(),
     );
   }
-
+    );
+    }
   Widget _buildRetailerCard(BuildContext context, Retailer retailer) {
     return Consumer<ThemeProvider>(
       builder: (context, themeProvider, child) {

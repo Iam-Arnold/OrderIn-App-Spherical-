@@ -38,7 +38,8 @@ class MyCartPage extends StatelessWidget {
           },
           child: Scaffold(
             appBar: AppBar(
-              title: Text('My Cart'),
+              title: Text('My Cart', style: TextStyle(color:isDarkTheme ? AppColors.ultramarineBlue: AppColors.white, fontWeight: FontWeight.w500,),),
+              backgroundColor: Colors.transparent,
             ),
             body: Container(
               padding: EdgeInsets.all(16.0),

@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:orderinapp/provider/theme_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:orderinapp/utils/colors.dart';
 import 'package:orderinapp/pages/product_details_page.dart';
-import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 
-class StoreDetailsPage extends StatelessWidget {
+class StoreDetailsPage extends StatefulWidget {
   final String storeName;
   final String storeLocation;
   final String storeType;
@@ -27,22 +26,52 @@ class StoreDetailsPage extends StatelessWidget {
   });
 
   @override
+  _StoreDetailsPageState createState() => _StoreDetailsPageState();
+}
+
+class _StoreDetailsPageState extends State<StoreDetailsPage> {
+  bool _isFavorite = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkIfFavorite();
+  }
+
+  Future<void> _checkIfFavorite() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _isFavorite = prefs.getBool(widget.storeName) ?? false;
+    });
+  }
+
+  Future<void> _toggleFavorite() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _isFavorite = !_isFavorite;
+      prefs.setBool(widget.storeName, _isFavorite);
+    });
+  }
+
+  void _shareStoreDetails() {
+    Share.share(
+      'Check out this store: ${widget.storeName}, located at ${widget.storeLocation}. They offer great deals on ${widget.storeType}.',
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(storeName),
+        title: Text(widget.storeName),
         actions: [
           IconButton(
             icon: Icon(Icons.share),
-            onPressed: () {
-              _shareStoreDetails();
-            },
+            onPressed: _shareStoreDetails,
           ),
           IconButton(
-            icon: Icon(Icons.favorite_border),
-            onPressed: () {
-              // Handle favorite action
-            },
+            icon: Icon(_isFavorite ? Icons.favorite : Icons.favorite_border),
+            onPressed: _toggleFavorite,
           ),
         ],
       ),
@@ -57,7 +86,7 @@ class StoreDetailsPage extends StatelessWidget {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(16.0),
                   image: DecorationImage(
-                    image: NetworkImage(placeholderImage),
+                    image: NetworkImage(widget.placeholderImage),
                     fit: BoxFit.cover,
                   ),
                 ),
@@ -68,7 +97,7 @@ class StoreDetailsPage extends StatelessWidget {
                   Icon(Icons.location_on, color: AppColors.ultramarineBlue),
                   SizedBox(width: 4.0),
                   Text(
-                    storeLocation,
+                    widget.storeLocation,
                     style: TextStyle(
                       color: AppColors.grey,
                       fontSize: 14.0,
@@ -78,7 +107,7 @@ class StoreDetailsPage extends StatelessWidget {
               ),
               SizedBox(height: 8.0),
               Text(
-                storeType,
+                widget.storeType,
                 style: TextStyle(
                   color: AppColors.grey,
                   fontSize: 14.0,
@@ -90,7 +119,7 @@ class StoreDetailsPage extends StatelessWidget {
                   Icon(Icons.star, color: Colors.yellow),
                   SizedBox(width: 4.0),
                   Text(
-                    rating.toString(),
+                    widget.rating.toString(),
                     style: TextStyle(
                       color: AppColors.grey,
                       fontSize: 14.0,
@@ -104,17 +133,16 @@ class StoreDetailsPage extends StatelessWidget {
                   Icon(Icons.timer, color: AppColors.grey),
                   SizedBox(width: 4.0),
                   Text(
-                    deliveryTime,
+                    widget.deliveryTime,
                     style: TextStyle(
                       color: AppColors.grey,
                       fontSize: 14.0,
                     ),
                   ),
                   Spacer(),
-                  //Icon(Icons.attach_money, color: AppColors.grey),
                   SizedBox(width: 4.0),
                   Text(
-                    deliveryFee,
+                    widget.deliveryFee,
                     style: TextStyle(
                       color: AppColors.grey,
                       fontSize: 14.0,
@@ -140,10 +168,6 @@ class StoreDetailsPage extends StatelessWidget {
     );
   }
 
-  void _shareStoreDetails() {
-    Share.share('Check out this store: $storeName, located at $storeLocation. They offer great deals on $storeType.');
-  }
-
   Widget _buildPromoDeals(BuildContext context) {
     return GridView.builder(
       shrinkWrap: true,
@@ -154,10 +178,9 @@ class StoreDetailsPage extends StatelessWidget {
         crossAxisSpacing: 16.0,
         mainAxisSpacing: 16.0,
       ),
-      itemCount: promoDeals.length,
+      itemCount: widget.promoDeals.length,
       itemBuilder: (context, index) {
-        print('dealssss $promoDeals[index]');
-        return _buildPromoDealCard(context, promoDeals[index]);
+        return _buildPromoDealCard(context, widget.promoDeals[index]);
       },
     );
   }
@@ -178,65 +201,61 @@ class StoreDetailsPage extends StatelessWidget {
           ),
         );
       },
-      child: Consumer<ThemeProvider>(
-        builder: (context, themeProvider, child) {
-          return Container(
-            decoration: BoxDecoration(
-              color: AppColors.white,
-              borderRadius: BorderRadius.circular(16.0),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.withOpacity(0.3),
-                  spreadRadius: 1,
-                  blurRadius: 2,
-                  offset: Offset(0, 2),
-                ),
-              ],
+      child: Container(
+        decoration: BoxDecoration(
+          color: AppColors.white,
+          borderRadius: BorderRadius.circular(16.0),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.3),
+              spreadRadius: 1,
+              blurRadius: 2,
+              offset: Offset(0, 2),
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  height: 100.0,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(16.0),
-                      topRight: Radius.circular(16.0),
-                    ),
-                    image: DecorationImage(
-                      image: NetworkImage(deal['image']!),
-                      fit: BoxFit.cover,
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              height: 100.0,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(16.0),
+                  topRight: Radius.circular(16.0),
+                ),
+                image: DecorationImage(
+                  image: NetworkImage(deal['image']!),
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    deal['name']!,
+                    style: TextStyle(
+                      fontSize: 16.0,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.darkBlue,
                     ),
                   ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        deal['name']!,
-                        style: TextStyle(
-                          fontSize: 16.0,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.darkBlue,
-                        ),
-                      ),
-                      SizedBox(height: 4.0),
-                      Text(
-                        deal['price']!,
-                        style: TextStyle(
-                          fontSize: 14.0,
-                          color: AppColors.grey,
-                        ),
-                      ),
-                    ],
+                  SizedBox(height: 4.0),
+                  Text(
+                    deal['price']!,
+                    style: TextStyle(
+                      fontSize: 14.0,
+                      color: AppColors.grey,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          );
-        },
+          ],
+        ),
       ),
     );
   }

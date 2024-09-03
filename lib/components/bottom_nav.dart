@@ -18,8 +18,6 @@ class _BottomNavigationState extends State<BottomNavigation> {
   Widget build(BuildContext context) {
     return Consumer<ThemeProvider>(
       builder: (context, themeProvider, child) {
-        //bool isDarkTheme = Theme.of(context).brightness == Brightness.dark;
-
         return BottomNavigationBar(
           items: [
             BottomNavigationBarItem(

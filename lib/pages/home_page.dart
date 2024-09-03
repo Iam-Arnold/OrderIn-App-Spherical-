@@ -20,6 +20,7 @@ import './contact_selection_page.dart';
 import '../components/home_card_slider.dart';
 import './profile_page.dart';
 import '../components/lazy_loader_cards.dart';
+import '../utils/theme.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -48,12 +49,16 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     final userName = Provider.of<UserProvider>(context).userName;
 
-    return Scaffold(
+    return Consumer<ThemeProvider>(
+      builder: (context, themeProvider, child) {
+        bool isDarkTheme = themeProvider.switchThemeIcon();
+        return Scaffold(
       appBar: AppBar(
-        title: Text('OrderIn'),
+        title: Text('OrderIn', style: TextStyle(color:isDarkTheme ? AppColors.ultramarineBlue: AppColors.white, fontWeight: FontWeight.w500,),),
+        backgroundColor: Colors.transparent,
         actions: [
           IconButton(
-            icon: Icon(Icons.chat),
+            icon: Icon(Icons.chat, color: isDarkTheme? AppColors.ultramarineBlue : AppColors.white,),
             onPressed: () {
               Navigator.push(
                 context,
@@ -93,7 +98,9 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
         ],
+        iconTheme: IconThemeData(color: isDarkTheme ? AppColors.ultramarineBlue : AppColors.white),
       ),
+      
       drawer: Consumer<UserProvider>(
         builder: (context, userProvider, child) {
           final String userName = userProvider.userName.isNotEmpty ? userProvider.userName : 'Guest';
@@ -107,6 +114,7 @@ class _HomePageState extends State<HomePage> {
             onBecomeRetailer: () {
               // Handle becoming a retailer
             },
+            
           );
         },
       ),
@@ -132,7 +140,7 @@ class _HomePageState extends State<HomePage> {
                     _buildCoreValuesSection(),
                     SizedBox(height: 16.0),
                     for (String category in categories) ...[
-                      _buildCategorySection(category, context),
+                      _buildCategorySection(category, context, isDarkTheme ? AppColors.darkBlue: AppColors.white),
                       SizedBox(height: 16.0),
                     ]
                   ],
@@ -143,7 +151,7 @@ class _HomePageState extends State<HomePage> {
         },
       ),
     );
-  }
+  });}
 
   Widget _buildCoreValuesSection() {
     return Row(
@@ -178,7 +186,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-Widget _buildCategorySection(String title, BuildContext context) {
+Widget _buildCategorySection(String title, BuildContext context, Color color) {
   if (!retailersFutures.containsKey(title)) {
     retailersFutures[title] = apiService.fetchRetailers(title, limit: 10);
   }
@@ -194,7 +202,7 @@ Widget _buildCategorySection(String title, BuildContext context) {
             style: TextStyle(
               fontSize: 18.0,
               fontWeight: FontWeight.bold,
-              color: Colors.black,
+              color: color,
             ),
           ),
           GestureDetector(

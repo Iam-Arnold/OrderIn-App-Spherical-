@@ -262,8 +262,8 @@ Widget _buildEditableField({
       builder: (context, userProvider, themeProvider, child) {
         return Scaffold(
           appBar: AppBar(
-            title: Text('Profile', style: TextStyle(color: Colors.white)),
-            elevation: 0,
+            title: Text('Profile', style: TextStyle(color: themeProvider.switchThemeIcon() ? AppColors.ultramarineBlue : Colors.white)),
+            backgroundColor: Colors.transparent,
             iconTheme: IconThemeData(color: Colors.white),
           ),
           body: SingleChildScrollView(

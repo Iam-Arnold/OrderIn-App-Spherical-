@@ -60,11 +60,25 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                   IconButton(
                     icon: Icon(Icons.shopping_cart),
                     onPressed: () {
-                      // Navigate to cart page
+                      // Access the cart provider
+                      final cartProvider = Provider.of<CartProvider>(context, listen: false);
+
+                      // Add product to cart
+                      cartProvider.addItem(
+                        CartItem(
+                          productId: widget.productId,
+                          productName: widget.productName,
+                          productImage: widget.productImage,
+                          productPrice: widget.productPrice,
+                          quantity: quantity,
+                        ),
+                      );
+
+                      // Navigate to the OrderTrackingPage with the cart expanded
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => OrderTrackingPage(),
+                          builder: (context) => OrderTrackingPage(expandCart: true),
                         ),
                       );
                     },

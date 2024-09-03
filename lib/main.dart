@@ -93,7 +93,7 @@ class _MainScreenState extends State<MainScreen> {
       bottomNavigationBar: BottomNavigation(
         selectedIndex: _selectedIndex,
         onItemTapped: _onItemTapped,
-      ),
+     ),
     );
   }
 }
